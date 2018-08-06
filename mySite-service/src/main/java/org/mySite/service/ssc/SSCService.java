@@ -7,9 +7,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mySite.common.bean.SSCCookie;
 import org.mySite.common.constant.SSCConstants;
-import org.mySite.common.constant.SSCConstants.AutoStrategy;
+import org.mySite.common.constant.SSCConstants.AutoStrategyConstant;
 import org.mySite.common.util.HttpRequestUtil;
 import org.mySite.domain.*;
+import org.mySite.service.ssc.riskStrategy.impl.WinCountRiskStrategyImpl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,8 +26,13 @@ public class SSCService {
         sscCookie = new SSCCookie(SSCConstants.user, SSCConstants.jsessionId, SSCConstants.swtichOpen);
     }
 
-    private static Map<String,String> codeDic = new HashMap<>();
+    private static Set<String> codes = new HashSet<String>();
+    private static Map<String,String> codeDic = new HashMap<String,String>();
     static {
+        codes.add("0");
+        codes.add("2");
+        codes.add("5");
+        codes.add("9");
         codeDic.put("0",SSCConstants.code_map_0);
         codeDic.put("2",SSCConstants.code_map_2);
         codeDic.put("5",SSCConstants.code_map_5);
@@ -145,24 +151,24 @@ public class SSCService {
     public void submitOrders(SSCOrder order, SSCInfo sscInfo) {
         if (order != null && !order.isEmpty()) {
             List<SSCOrderNode> orderNodes = new ArrayList<SSCOrderNode>();
-            //计算倍数
-            int price = getRate(sscInfo.getAmount(), min_unit, order.getOrderCount());
+            //计算资金管理相关参数
+            RiskStrategyModel riskStrategyInfo = getRiskStrategyInfo(sscInfo, order.getOrderCount());
             //万位
-            fillOrderNode(orderNodes, 0 , order.getW(), sscInfo, price);
+            fillOrderNode(orderNodes, 0 , order.getW(), riskStrategyInfo);
             //千位
-            fillOrderNode(orderNodes, 1 , order.getQ(), sscInfo, price);
+            fillOrderNode(orderNodes, 1 , order.getQ(), riskStrategyInfo);
             //百位
-            fillOrderNode(orderNodes, 2 , order.getB(), sscInfo, price);
+            fillOrderNode(orderNodes, 2 , order.getB(), riskStrategyInfo);
             //十位
-            fillOrderNode(orderNodes, 3 , order.getS(), sscInfo, price);
+            fillOrderNode(orderNodes, 3 , order.getS(), riskStrategyInfo);
             //个位
-            fillOrderNode(orderNodes, 4 , order.getG(), sscInfo, price);
+            fillOrderNode(orderNodes, 4 , order.getG(), riskStrategyInfo);
 
             double orderMoney = 0;
             int count = 0;
             if (orderNodes.size() > 0) {
                 for (SSCOrderNode node : orderNodes) {
-                    orderMoney = orderMoney + node.getPrice() * min_unit * 4;
+                    orderMoney = orderMoney + node.getPrice() * riskStrategyInfo.getUnit() * 4;
                     count = count + 4;
                 }
                 SSCOrderParam sscOrderParam = new SSCOrderParam();
@@ -174,7 +180,7 @@ public class SSCService {
                 sscOrderParam.setCount(count);
                 HashMap<String,String> traceOrdersMap = new HashMap<String,String>();
                 traceOrdersMap.put("seasonId",sscInfo.getCurrentOpenSeasonId());
-                ArrayList<Map<String, String>> arrayList = new ArrayList<>();
+                ArrayList<Map<String, String>> arrayList = new ArrayList<Map<String, String>>();
                 arrayList.add(traceOrdersMap);
                 sscOrderParam.setTraceOrders(arrayList);
                 log.info("准备提交订单，订单信息\n" + JSONObject.toJSON(sscOrderParam).toString());
@@ -235,16 +241,20 @@ public class SSCService {
 
     }
 
-    private void fillOrderNode(List<SSCOrderNode> orderNodes, int position, Set<String> codeSet, SSCInfo sscInfo, int price) {
+    private void fillOrderNode() {
+
+    }
+
+    private void fillOrderNode(List<SSCOrderNode> orderNodes, int position, Set<String> codeSet, RiskStrategyModel riskStrategyInfo) {
         if (codeSet != null && codeSet.size() > 0) {
             for (String code : codeSet) {
                 SSCOrderNode sscOrderNode = new SSCOrderNode();
-                sscOrderNode.setUnit(min_unit);
+                sscOrderNode.setUnit(riskStrategyInfo.getUnit());
                 fillContent(position, code, sscOrderNode);
                 orderNodes.add(sscOrderNode);
             }
             for (SSCOrderNode node : orderNodes) {
-                node.setPrice(price);
+                node.setPrice(riskStrategyInfo.getPrice());
             }
 
         }
@@ -272,43 +282,28 @@ public class SSCService {
         }
     }
 
+
     /**
-     * 分模式下的资金管理，即使用2%作为投入资金，计算每单的倍数（每单包含4注）
-     *
-     * @param availableMoney
-     * @param minUnit 一个数字的投注额，默认是分模式，即0.02
+     * 资金管理相关参数
+     * @param sscInfo
+     * @param orderCount
      * @return
      */
-    public int getRate(float availableMoney, double minUnit, int orderCount) {
-        ResultAnalyseModle analyseResult = this.analyseResult("", "", AutoStrategy.analyse_count);
-        return (int)Math.round((availableMoney * getRiskRate(analyseResult)) / (minUnit*4) / orderCount);//4表示没注买4个号;
-    }
-
-    public double getRiskRate(ResultAnalyseModle analyseResult) {
-        //每次的风险比例
-        double riskRate = 0;
-        if (analyseResult != null) {
-            if (analyseResult.getContinueWinCount() >= AutoStrategy.most_continue_win_num || analyseResult.getWinRate() >= AutoStrategy.win_rate_threshold_up) {
-                riskRate = AutoStrategy.risk_dowm;
-                log.info("降低投入比例为：" + AutoStrategy.risk_dowm);
-            }else if (analyseResult.getContinueLoseCount() >= AutoStrategy.most_continue_lose_num || analyseResult.getWinRate() <= AutoStrategy.win_rate_threshold_dowm) {
-                riskRate = AutoStrategy.risk_up;
-                log.info("增加投入比例为：" + AutoStrategy.risk_up);
-            }else {
-                riskRate = AutoStrategy.risk_normal;
-            }
-        }
-        return riskRate;
+    public RiskStrategyModel getRiskStrategyInfo(SSCInfo sscInfo, int orderCount) {
+        WinCountRiskStrategyImpl riskStrategy = new WinCountRiskStrategyImpl();
+        ResultAnalyseModle analyseResult = this.analyseResult(sscInfo, "", "", AutoStrategyConstant.analyse_count);
+        RiskStrategyModel strategyModel = riskStrategy.getRiskRate(analyseResult, orderCount);
+        return strategyModel;
     }
 
     private void fillCodeSets(SSCOrder sscOrder, SSCInfo sscInfo) {
         String[] lastestCode = sscInfo.getLastestCode();
         if (sscOrder != null && lastestCode != null && lastestCode.length == 5) {
-            if (codeDic.containsKey(lastestCode[0])) sscOrder.getW().add(lastestCode[0]);
-            if (codeDic.containsKey(lastestCode[1])) sscOrder.getQ().add(lastestCode[1]);
-            if (codeDic.containsKey(lastestCode[2])) sscOrder.getB().add(lastestCode[2]);
-            if (codeDic.containsKey(lastestCode[3])) sscOrder.getS().add(lastestCode[3]);
-            if (codeDic.containsKey(lastestCode[4])) sscOrder.getG().add(lastestCode[4]);
+            if (codes.contains(lastestCode[0])) sscOrder.getW().add(lastestCode[0]);
+            if (codes.contains(lastestCode[1])) sscOrder.getQ().add(lastestCode[1]);
+            if (codes.contains(lastestCode[2])) sscOrder.getB().add(lastestCode[2]);
+            if (codes.contains(lastestCode[3])) sscOrder.getS().add(lastestCode[3]);
+            if (codes.contains(lastestCode[4])) sscOrder.getG().add(lastestCode[4]);
             sscOrder.setSeasonId(sscInfo.getCurrentOpenSeasonId());
         }
     }
@@ -331,7 +326,7 @@ public class SSCService {
 //        sscService.submitOrders(sscOrder, sscInfo);
         //ResultAnalyseModle result = sscService.analyseResult("", "", 50);
         //log.info(result.toString());
-        log.error(sscService.getRate(99.4f, 0.002, 3));
+        //log.error(sscService.getPrice(99.4f, 0.002, 3));
     }
 
     private boolean isSeasonIdRefresh(String seasonId) {
@@ -428,14 +423,15 @@ public class SSCService {
         }
     }
 
-    public ResultAnalyseModle analyseResult(String startTime, String endTime, int pageSize) {
+    public ResultAnalyseModle analyseResult(SSCInfo sscInfo, String startTime, String endTime, int pageSize) {
         String resultJsonStr = sendHttpRequestForAnalyseInfo(startTime, endTime, pageSize);
-        ResultAnalyseModle result = parseAnalyseResult(resultJsonStr);
+        ResultAnalyseModle result = parseAnalyseResult(sscInfo, resultJsonStr);
         return result;
     }
 
-    private ResultAnalyseModle parseAnalyseResult(String resultJsonStr) {
+    private ResultAnalyseModle parseAnalyseResult(SSCInfo sscInfo, String resultJsonStr) {
         ResultAnalyseModle result = new ResultAnalyseModle();
+        result.setCurrentAmount(sscInfo.getAmount());
         if (StringUtils.isNotEmpty(resultJsonStr)) {
             JSONObject jsonObj = null;
             try {
@@ -542,22 +538,22 @@ public class SSCService {
         contentBuf.append("初始资金为：").append(SSCConstants.ssc_monitor_init_amount).append("<br>")
                 .append("当前账户总金额:").append(sscInfo.getAmount()).append("<br>")
                 .append("盈亏额：").append(sscInfo.getAmount() - SSCConstants.ssc_monitor_init_amount).append("<br>")
-                .append("整体盈利率为:").append(((sscInfo.getAmount() - SSCConstants.ssc_monitor_init_amount) / sscInfo.getAmount()) * 100).append("%").append("<br>");
+                .append("整体盈利率为:").append(analyseModle.getWinRate() * 100).append("%").append("<br>");
 
         //contentBuf.append("当前默认风险比例为：").append(AutoStrategy.risk_normal).append("<br>");
         contentBuf.append(analyseModle.getTotalCount()).append("期中:<br>")
-                .append("盈利率为：").append(analyseModle.getWinRate() * 100).append("%").append("<br>")
+                .append("盈利率为：").append(analyseModle.getWinCountRate() * 100).append("%").append("<br>")
                 .append("总共盈利").append(analyseModle.getWinCount()).append("单<br>")
                 .append("亏损") .append(analyseModle.getLoseCount()).append("单<br>")
                 .append("连赢").append(analyseModle.getContinueWinCount()).append("单<br>")
                 .append("连亏").append(analyseModle.getContinueLoseCount()).append("单<br>")
                 .append("未开奖").append(analyseModle.getInTradingCount()).append("单<br>")
-                .append("当前使用的风险比例为：").append(this.getRiskRate(analyseModle)).append("<br>");
+                .append("当前使用的风险比例为：").append(this.getRiskStrategyInfo(sscInfo, sscInfo.getCurrentOrder().getOrderCount()).getRiskRate()).append("<br>");
         return contentBuf.toString();
     }
 
     public String genAnalyseReport(SSCInfo sscInfo) {
-        ResultAnalyseModle analyseModle = analyseResult("", "", AutoStrategy.analyse_count);
+        ResultAnalyseModle analyseModle = analyseResult(sscInfo, "", "", AutoStrategyConstant.analyse_count);
         return getAnalyseInfo(analyseModle, sscInfo);
     }
 

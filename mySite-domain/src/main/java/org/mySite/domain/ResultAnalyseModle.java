@@ -11,11 +11,14 @@ import java.util.Map;
  * 结果分析数据
  */
 public class ResultAnalyseModle {
+    private double initAmount = SSCConstants.ssc_monitor_init_amount;//初始金额
+    private double currentAmount;//当前资金
     private int totalCount;//总单数
     private int winCount;//盈利总单数
     private int loseCount;//亏损总数量
+    private double winRate;//盈利(亏损)金额占初始资金比例
     private int inTradingCount;//还未开奖的单数
-    private double winRate;//盈利率
+    private double winCountRate;//盈利单比率
     private int continueWinCount;//连赢单数量
     private int continueLoseCount;//连续亏损单数量
     private String lastestSeason;//统计的最新期数
@@ -49,6 +52,22 @@ public class ResultAnalyseModle {
         public void setWinCount(int winCount) {
             this.winCount = winCount;
         }
+    }
+
+    public double getCurrentAmount() {
+        return currentAmount;
+    }
+
+    public void setCurrentAmount(double currentAmount) {
+        this.currentAmount = currentAmount;
+    }
+
+    public double getInitAmount() {
+        return initAmount;
+    }
+
+    public void setInitAmount(double initAmount) {
+        this.initAmount = initAmount;
     }
 
     public int getLoseCount() {
@@ -131,10 +150,22 @@ public class ResultAnalyseModle {
         this.winCount = winCount;
     }
 
-    public double getWinRate() {
+    public double getWinCountRate() {
         if (winCount == 0 || (totalCount - inTradingCount) == 0) return 0;
         //new BigDecimal(orderMoney).setScale(2, RoundingMode.DOWN);
-        return   (double)winCount / (double)(winCount + loseCount);
+        winCountRate = (double)winCount / (double)(totalCount - inTradingCount);
+        return  winCountRate;
+    }
+
+    public void setWinCountRate(double winCountRate) {
+        this.winCountRate = winCountRate;
+    }
+
+    public double getWinRate() {
+        if (currentAmount > 0 && initAmount > 0) {
+            this.winRate = (currentAmount - initAmount) / initAmount;
+        }
+        return winRate;
     }
 
     public void setWinRate(double winRate) {

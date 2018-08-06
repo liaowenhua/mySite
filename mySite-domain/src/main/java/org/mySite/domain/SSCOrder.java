@@ -6,11 +6,11 @@ import java.util.Set;
 public class SSCOrder {
     private String orderId;
     private String seasonId;//当前订单的期数
-    private Set<String> w = new HashSet<>();//万位
-    private Set<String> q = new HashSet<>();//千位
-    private Set<String> b = new HashSet<>();//百位
-    private Set<String> s = new HashSet<>();//十位
-    private Set<String> g = new HashSet<>();//个位
+    private Set<String> w = new HashSet<String>();//万位
+    private Set<String> q = new HashSet<String>();//千位
+    private Set<String> b = new HashSet<String>();//百位
+    private Set<String> s = new HashSet<String>();//十位
+    private Set<String> g = new HashSet<String>();//个位
 
     public boolean isEmpty() {
         return w.isEmpty() && q.isEmpty() && b.isEmpty() && s.isEmpty() && g.isEmpty();

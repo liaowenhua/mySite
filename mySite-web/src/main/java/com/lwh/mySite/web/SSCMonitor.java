@@ -3,7 +3,7 @@ package com.lwh.mySite.web;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mySite.common.constant.SSCConstants;
-import org.mySite.common.constant.SSCConstants.AutoStrategy;
+import org.mySite.common.constant.SSCConstants.AutoStrategyConstant;
 import org.mySite.common.util.MailUtil;
 import org.mySite.domain.ResultAnalyseModle;
 import org.mySite.domain.SSCInfo;
@@ -15,10 +15,10 @@ public class SSCMonitor {
     public static void main( String[] args ) throws InterruptedException {
         SSCService sscService = new SSCService();
         float initAmount = SSCConstants.ssc_monitor_init_amount;
+        SSCInfo sscInfo = null;
         if (initAmount == 0) {
-            SSCInfo sscInfo = sscService.getSSCInfo();
+            sscInfo = sscService.getSSCInfo();
             initAmount = sscInfo.getAmount();
-            sscInfo = null;
         }
 
 
@@ -26,7 +26,7 @@ public class SSCMonitor {
             log.info("开始执行监控任务...");
             SSCService sscServiceNew = new SSCService();
             SSCInfo sscInfoNew = sscServiceNew.getSSCInfo();
-            ResultAnalyseModle analyseModle = sscServiceNew.analyseResult("", "", AutoStrategy.analyse_count);
+            ResultAnalyseModle analyseModle = sscServiceNew.analyseResult(sscInfo, "", "", AutoStrategyConstant.analyse_count);
             String analyseReport = sscServiceNew.getAnalyseInfo(analyseModle, sscInfoNew);
             MailUtil.sendSSCAcountMail(analyseReport);
             log.info("监控任务执行完成！");
