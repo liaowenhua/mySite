@@ -11,7 +11,7 @@ import java.util.Map;
  * 结果分析数据
  */
 public class ResultAnalyseModle {
-    private double initAmount = SSCConstants.ssc_monitor_init_amount;//初始金额
+    private static double initAmount = SSCConstants.ssc_monitor_init_amount;//初始金额
     private double currentAmount;//当前资金
     private int totalCount;//总单数
     private int winCount;//盈利总单数
@@ -54,6 +54,8 @@ public class ResultAnalyseModle {
         }
     }
 
+
+
     public double getCurrentAmount() {
         return currentAmount;
     }
@@ -62,12 +64,12 @@ public class ResultAnalyseModle {
         this.currentAmount = currentAmount;
     }
 
-    public double getInitAmount() {
+    public static double getInitAmount() {
         return initAmount;
     }
 
-    public void setInitAmount(double initAmount) {
-        this.initAmount = initAmount;
+    public static void setInitAmount(double amount) {
+        initAmount = amount;
     }
 
     public int getLoseCount() {

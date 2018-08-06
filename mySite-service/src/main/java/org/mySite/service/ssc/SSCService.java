@@ -10,7 +10,9 @@ import org.mySite.common.constant.SSCConstants;
 import org.mySite.common.constant.SSCConstants.AutoStrategyConstant;
 import org.mySite.common.util.HttpRequestUtil;
 import org.mySite.domain.*;
+import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
 import org.mySite.service.ssc.riskStrategy.impl.WinCountRiskStrategyImpl;
+import org.mySite.service.ssc.riskStrategy.impl.WinRateRiskStrategyImpl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -46,9 +48,6 @@ public class SSCService {
     }
     private static String lastestSeasonId = "0";
     private static SSCOrder currentOrders = new SSCOrder();
-
-   // 模式：元(2)、角、分、厘(0.002).
-    private static double min_unit = SSCConstants.min_unit;
 
     private static String base_url_analyse = "https://web.4jc9.com/game/list?page=1&numMode=0&lotteryId=&playerId=+&seasonId=+&account=&includeChildren=0";
     private static String base_url_ssc_info = "https://web.4jc9.com/lotts/cqssc/info?_=";
@@ -290,7 +289,8 @@ public class SSCService {
      * @return
      */
     public RiskStrategyModel getRiskStrategyInfo(SSCInfo sscInfo, int orderCount) {
-        WinCountRiskStrategyImpl riskStrategy = new WinCountRiskStrategyImpl();
+        //IRiskStrategy riskStrategy = new WinCountRiskStrategyImpl();
+        IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();
         ResultAnalyseModle analyseResult = this.analyseResult(sscInfo, "", "", AutoStrategyConstant.analyse_count);
         RiskStrategyModel strategyModel = riskStrategy.getRiskRate(analyseResult, orderCount);
         return strategyModel;
@@ -432,6 +432,10 @@ public class SSCService {
     private ResultAnalyseModle parseAnalyseResult(SSCInfo sscInfo, String resultJsonStr) {
         ResultAnalyseModle result = new ResultAnalyseModle();
         result.setCurrentAmount(sscInfo.getAmount());
+        if (ResultAnalyseModle.getInitAmount() == 0) {
+            log.info("初始化资金为:" + sscInfo.getAmount());
+            ResultAnalyseModle.setInitAmount(sscInfo.getAmount());
+        }
         if (StringUtils.isNotEmpty(resultJsonStr)) {
             JSONObject jsonObj = null;
             try {
@@ -535,10 +539,12 @@ public class SSCService {
 
     public String getAnalyseInfo(ResultAnalyseModle analyseModle, SSCInfo sscInfo) {
         StringBuffer contentBuf = new StringBuffer();
-        contentBuf.append("初始资金为：").append(SSCConstants.ssc_monitor_init_amount).append("<br>")
+        contentBuf.append("初始资金为：").append(ResultAnalyseModle.getInitAmount()).append("<br>")
                 .append("当前账户总金额:").append(sscInfo.getAmount()).append("<br>")
-                .append("盈亏额：").append(sscInfo.getAmount() - SSCConstants.ssc_monitor_init_amount).append("<br>")
+                .append("盈亏额：").append(sscInfo.getAmount() - ResultAnalyseModle.getInitAmount()).append("<br>")
                 .append("整体盈利率为:").append(analyseModle.getWinRate() * 100).append("%").append("<br>");
+
+        contentBuf.append("当前模式为：").append(WinRateRiskStrategyImpl.getMode_current()).append("<br>");
 
         //contentBuf.append("当前默认风险比例为：").append(AutoStrategy.risk_normal).append("<br>");
         contentBuf.append(analyseModle.getTotalCount()).append("期中:<br>")
