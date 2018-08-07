@@ -11,6 +11,7 @@ import org.mySite.common.constant.SSCConstants.AutoStrategyConstant;
 import org.mySite.common.util.HttpRequestUtil;
 import org.mySite.domain.*;
 import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
+import org.mySite.service.ssc.riskStrategy.impl.RecentWinRateRistStrategyImpl;
 import org.mySite.service.ssc.riskStrategy.impl.WinCountRiskStrategyImpl;
 import org.mySite.service.ssc.riskStrategy.impl.WinRateRiskStrategyImpl;
 
@@ -289,8 +290,9 @@ public class SSCService {
      * @return
      */
     public RiskStrategyModel getRiskStrategyInfo(SSCInfo sscInfo, int orderCount) {
-        //IRiskStrategy riskStrategy = new WinCountRiskStrategyImpl();
-        IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();
+        //IRiskStrategy riskStrategy = new WinCountRiskStrategyImpl();//按照近期连赢或者连亏的数量动态调整
+        IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
+        //IRiskStrategy riskStrategy = new RecentWinRateRistStrategyImpl();//按照近期的盈利单比亏损单动态调整
         ResultAnalyseModle analyseResult = this.analyseResult(sscInfo, "", "", AutoStrategyConstant.analyse_count);
         RiskStrategyModel strategyModel = riskStrategy.getRiskRate(analyseResult, orderCount);
         return strategyModel;
@@ -544,7 +546,7 @@ public class SSCService {
                 .append("盈亏额：").append(sscInfo.getAmount() - ResultAnalyseModle.getInitAmount()).append("<br>")
                 .append("整体盈利率为:").append(analyseModle.getWinRate() * 100).append("%").append("<br>");
 
-        contentBuf.append("当前模式为：").append(WinRateRiskStrategyImpl.getMode_current()).append("<br>");
+        //contentBuf.append("当前模式为：").append(WinRateRiskStrategyImpl.getMode_current()).append("<br>");
 
         //contentBuf.append("当前默认风险比例为：").append(AutoStrategy.risk_normal).append("<br>");
         contentBuf.append(analyseModle.getTotalCount()).append("期中:<br>")
@@ -553,8 +555,8 @@ public class SSCService {
                 .append("亏损") .append(analyseModle.getLoseCount()).append("单<br>")
                 .append("连赢").append(analyseModle.getContinueWinCount()).append("单<br>")
                 .append("连亏").append(analyseModle.getContinueLoseCount()).append("单<br>")
-                .append("未开奖").append(analyseModle.getInTradingCount()).append("单<br>")
-                .append("当前使用的风险比例为：").append(this.getRiskStrategyInfo(sscInfo, sscInfo.getCurrentOrder().getOrderCount()).getRiskRate()).append("<br>");
+                .append("未开奖").append(analyseModle.getInTradingCount()).append("单<br>");
+               // .append("当前使用的风险比例为：").append(this.getRiskStrategyInfo(sscInfo, sscInfo.getCurrentOrder().getOrderCount()).getRiskRate()).append("<br>");
         return contentBuf.toString();
     }
 

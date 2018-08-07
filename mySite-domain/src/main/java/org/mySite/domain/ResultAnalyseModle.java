@@ -16,6 +16,7 @@ public class ResultAnalyseModle {
     private int totalCount;//总单数
     private int winCount;//盈利总单数
     private int loseCount;//亏损总数量
+    private double recentWinCountOrderRate;//近期的盈利单数量/亏损单数量
     private double winRate;//盈利(亏损)金额占初始资金比例
     private int inTradingCount;//还未开奖的单数
     private double winCountRate;//盈利单比率
@@ -54,7 +55,15 @@ public class ResultAnalyseModle {
         }
     }
 
+    public double getRecentWinCountOrderRate() {
+        if (loseCount == 0) return 100;
+        recentWinCountOrderRate = (double) winCount / (double) loseCount;
+        return recentWinCountOrderRate;
+    }
 
+    public void setRecentWinCountOrderRate(double recentWinCountOrderRate) {
+        this.recentWinCountOrderRate = recentWinCountOrderRate;
+    }
 
     public double getCurrentAmount() {
         return currentAmount;
