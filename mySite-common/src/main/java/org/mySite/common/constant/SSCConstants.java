@@ -3,7 +3,7 @@ package org.mySite.common.constant;
 public interface SSCConstants {
     //账户信息
     String user = "liaowenhua22";
-    String jsessionId = "279805FEA45B8E73DB0BC32CC76A5BEBF9D8FD3554BF";
+    String jsessionId = "DB4D277E3FA8DF7247C86FE480EB023BEB19AD3E";
     String swtichOpen = "n621";
 
     //监控邮件相关信息
@@ -18,7 +18,7 @@ public interface SSCConstants {
     double min_unit = 0.02;
 
     //用于监控盈亏的初始资金。如果这里设置为0，那么会在监控任务中取当前余额为初始资金
-    double ssc_monitor_init_amount = 0;
+    double ssc_monitor_init_amount = 744;
     //订单任务时间间隔，单位毫秒
     long interval_mill_second = 30000;//60*1000*1 1分钟
     //账户监控邮件间隔，单位毫秒

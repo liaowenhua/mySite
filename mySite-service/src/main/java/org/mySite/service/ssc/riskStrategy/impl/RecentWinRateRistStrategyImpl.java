@@ -21,9 +21,9 @@ public class RecentWinRateRistStrategyImpl implements IRiskStrategy {
     //当盈利率小于等于该值时，mode_current模式调整为 mode_fighting
     private static double win_rate_threshold_dowm = -0.04;
     //当盈利率大于等于该值时，模式调整为 mode_defend
-    private static double win_rate_threshold_up = 0.1;
+    private static double win_rate_threshold_up = 0.05;
     //防守模式下的资金风险比例
-    private static double risk_defend = 0.005;
+    private static double risk_defend = 0.002;
     //进攻模式下的资金风险比例，为防守模式下的10倍
     private static double risk_fighting = 10*risk_defend;
 
