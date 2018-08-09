@@ -13,7 +13,7 @@ public class FixedRiskStrategyImpl implements IRiskStrategy {
     }
 
     public static RiskStrategyModel getStrategyModel(double unit, double riskRate, double amount, int orderCount) {
-        if (orderCount == 0 || amount <= 0 || unit == 0 || riskRate >= 0.1) return null;
+        if (orderCount == 0 || amount <= 0 || unit == 0 || riskRate > 0.1) return null;
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
         riskStrategyModel.setUnit(unit);
         riskStrategyModel.setRiskRate(riskRate);
