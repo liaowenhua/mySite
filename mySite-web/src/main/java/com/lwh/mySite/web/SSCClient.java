@@ -3,6 +3,7 @@ package com.lwh.mySite.web;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mySite.common.constant.SSCConstants;
+import org.mySite.domain.RiskStrategyModel;
 import org.mySite.domain.SSCInfo;
 import org.mySite.domain.SSCOrder;
 import org.mySite.service.ssc.SSCService;
@@ -22,7 +23,8 @@ public class SSCClient {
             SSCOrder sscOrder = sscService.mergeOrder(sscInfo, isInit);
             String report = sscService.genAnalyseReport(sscInfo);
             log.info("分析报告：" + report.replace("\\<br\\>", ";"));
-            sscService.submitOrders(sscOrder, sscInfo);
+            RiskStrategyModel riskStrategyInfo = sscService.getRiskStrategyInfo(sscInfo, sscOrder.getOrderCount());
+            sscService.submitOrders(sscOrder, sscInfo, riskStrategyInfo);
             isInit = false;
             log.info("进入休眠...");
             Thread.sleep(SSCConstants.interval_mill_second);

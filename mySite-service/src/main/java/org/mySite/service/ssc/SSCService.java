@@ -11,9 +11,7 @@ import org.mySite.common.constant.SSCConstants.AutoStrategyConstant;
 import org.mySite.common.util.HttpRequestUtil;
 import org.mySite.domain.*;
 import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
-import org.mySite.service.ssc.riskStrategy.impl.RecentWinRateRistStrategyImpl;
-import org.mySite.service.ssc.riskStrategy.impl.WinCountRiskStrategyImpl;
-import org.mySite.service.ssc.riskStrategy.impl.WinRateRiskStrategyImpl;
+import org.mySite.service.ssc.riskStrategy.impl.ManueRiskStrategyImpl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -57,7 +55,7 @@ public class SSCService {
     public SSCInfo getSSCInfo() {
         SSCInfo sscInfo = new SSCInfo();
         String resultJson = sendHttpRequestForInfo();
-        genSSCInfo(resultJson, sscInfo);
+        parseSSCInfo(resultJson, sscInfo);
         return sscInfo;
     }
 
@@ -148,11 +146,9 @@ public class SSCService {
      * 提交订单
      * @param order
      */
-    public void submitOrders(SSCOrder order, SSCInfo sscInfo) {
+    public void submitOrders(SSCOrder order, SSCInfo sscInfo, RiskStrategyModel riskStrategyInfo) {
         if (order != null && !order.isEmpty()) {
             List<SSCOrderNode> orderNodes = new ArrayList<SSCOrderNode>();
-            //计算资金管理相关参数
-            RiskStrategyModel riskStrategyInfo = getRiskStrategyInfo(sscInfo, order.getOrderCount());
             //万位
             fillOrderNode(orderNodes, 0 , order.getW(), riskStrategyInfo);
             //千位
@@ -186,7 +182,7 @@ public class SSCService {
                 log.info("准备提交订单，订单信息\n" + JSONObject.toJSON(sscOrderParam).toString());
 
                 //提交订单
-                boolean success = submitOrder(sscOrderParam, sscInfo);
+                boolean success = submitOrder(sscOrderParam);
                 //如果提交订单成功，则更新当前订单信息
                 if (success) {
                     currentOrders = order;
@@ -199,7 +195,7 @@ public class SSCService {
         }
     }
 
-    private boolean submitOrder(SSCOrderParam sscOrderParam, SSCInfo sscInfo) {
+    private boolean submitOrder(SSCOrderParam sscOrderParam) {
         String url = wrapUrl(sscOrderParam);
         log.info("提交订单url:" + url);
         String result = HttpRequestUtil.post(url, JSONObject.toJSON(sscOrderParam).toString(), sscCookie);
@@ -291,8 +287,9 @@ public class SSCService {
      */
     public RiskStrategyModel getRiskStrategyInfo(SSCInfo sscInfo, int orderCount) {
         //IRiskStrategy riskStrategy = new WinCountRiskStrategyImpl();//按照近期连赢或者连亏的数量动态调整
-        IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
+        //IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
         //IRiskStrategy riskStrategy = new RecentWinRateRistStrategyImpl();//按照近期的盈利单比亏损单动态调整
+        IRiskStrategy riskStrategy = new ManueRiskStrategyImpl();
         ResultAnalyseModle analyseResult = this.analyseResult(sscInfo, "", "", AutoStrategyConstant.analyse_count);
         RiskStrategyModel strategyModel = riskStrategy.getRiskRate(analyseResult, orderCount);
         return strategyModel;
@@ -343,7 +340,7 @@ public class SSCService {
         return  result;
     }
 
-    private void genSSCInfo(String json, SSCInfo sscInfo) {
+    private void parseSSCInfo(String json, SSCInfo sscInfo) {
         if (StringUtils.isNotBlank(json)) {
             JSONObject infoJSON = JSONObject.parseObject(json);
             JSONObject contentJson;

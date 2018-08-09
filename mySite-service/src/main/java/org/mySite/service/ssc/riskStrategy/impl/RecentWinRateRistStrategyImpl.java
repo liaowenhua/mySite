@@ -25,9 +25,10 @@ public class RecentWinRateRistStrategyImpl implements IRiskStrategy {
     //防守模式下的资金风险比例
     private static double risk_defend = 0.002;
     //进攻模式下的资金风险比例，为防守模式下的10倍
-    private static double risk_fighting = 10*risk_defend;
+    private static double risk_fighting = 25*risk_defend;
 
-    private static double recent_WinCountOrder_Rate_Threshold  =  0.35;
+    private static double recent_WinCountOrder_Rate_Threshold  =  0.43;
+    private static double recent_WinCountOrder_Rate_Threshold_Up  =  1;
     @Override
     public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, int orderCount) {
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
@@ -55,12 +56,13 @@ public class RecentWinRateRistStrategyImpl implements IRiskStrategy {
 //                    ResultAnalyseModle.setInitAmount(analyseResult.getCurrentAmount());
 //                }
             }else if (mode_current == mode_fighting) {
-                if (analyseResult.getWinRate() >= win_rate_threshold_up) {
+                if (analyseResult.getRecentWinCountOrderRate() >= recent_WinCountOrder_Rate_Threshold_Up
+                        && analyseResult.getCurrentAmount() - ResultAnalyseModle.getInitAmount() > 0) {
                     mode_current = mode_defend;
                     riskStrategyModel.setUnit(unit_defend);
                     riskStrategyModel.setRiskRate(risk_defend);
                     riskStrategyModel.setMode(mode_defend);
-                    ResultAnalyseModle.setInitAmount(analyseResult.getCurrentAmount());
+                   // ResultAnalyseModle.setInitAmount(analyseResult.getCurrentAmount());
                     log.info("mode_fighting change to mode_defend。当前余额为:" + analyseResult.getCurrentAmount());
                     MailUtil.sendSSCAcountMail("mode_fighting change to mode_defend。当前余额为:" + analyseResult.getCurrentAmount());
                 }else {
