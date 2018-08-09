@@ -17,8 +17,8 @@ public interface SSCConstants {
     /**模式：元(2)、角、分、厘(0.002).*/
     double min_unit = 0.02;
 
-    double custom_price = 0.002;
-    double getCustom_min_price = 0.002;
+    double custom_risk_rate = 0.002;
+    double custom_min_unit = 0.002;
 
 
 

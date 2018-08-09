@@ -12,10 +12,10 @@ public class ManueRiskStrategyImpl implements IRiskStrategy {
     private static Logger log = LogManager.getLogger(ManueRiskStrategyImpl.class);
     @Override
     public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, int orderCount) {
-        log.info("当前使用手动风险模式。风险比例是" + SSCConstants.custom_price);
+        log.info("当前使用手动风险模式。风险比例是" + SSCConstants.custom_risk_rate);
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
-        riskStrategyModel.setUnit(SSCConstants.getCustom_min_price);
-        riskStrategyModel.setRiskRate(SSCConstants.custom_price);
+        riskStrategyModel.setUnit(SSCConstants.custom_min_unit);
+        riskStrategyModel.setRiskRate(SSCConstants.custom_risk_rate);
         int price = (int)Math.round((analyseResult.getCurrentAmount() * riskStrategyModel.getRiskRate()) / (riskStrategyModel.getUnit()*4) / orderCount);
         riskStrategyModel.setPrice(price);
         if (analyseResult.getContinueLoseCount() >= 5 || analyseResult.getRecentWinCountOrderRate() <= 0.3) {
