@@ -19,16 +19,17 @@ public class WinRateRiskStrategyImpl implements IRiskStrategy {
     private static double unit_defend = 0.002;
     private static double unit_fighting = 0.02;
     //当盈利率小于等于该值时，mode_current模式调整为 mode_fighting
-    private static double win_rate_threshold_dowm = -0.04;
+    private static double win_rate_threshold_dowm = -0.01;
     //当盈利率大于等于该值时，模式调整为 mode_defend
-    private static double win_rate_threshold_up = 0.2;
+    private static double win_rate_threshold_up = 0.05;
     //防守模式下的资金风险比例
-    private static double risk_defend = 0.005;
-    //进攻模式下的资金风险比例，为防守模式下的10倍
-    private static double risk_fighting = 10*risk_defend;
+    private static double risk_defend = 0.002;
+    //进攻模式下的资金风险比例
+    private static double risk_fighting = 0.05;
 
     public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, int orderCount) {
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
+        log.info("当前使用的策略类是：WinRateRiskStrategyImpl");
         if (analyseResult != null) {
             log.info("current mode is " + mode_current);
             if (mode_current == mode_defend) {
@@ -45,16 +46,17 @@ public class WinRateRiskStrategyImpl implements IRiskStrategy {
                     riskStrategyModel.setRiskRate(risk_defend);
                     riskStrategyModel.setMode(mode_defend);
                 }
-                if (analyseResult.getCurrentAmount() > ResultAnalyseModle.getInitAmount()) {
-                    log.info("当前余额" + analyseResult.getCurrentAmount() + "大于初始资金" + ResultAnalyseModle.getInitAmount() + ".重新初始化资金为" + analyseResult.getCurrentAmount());
-                    ResultAnalyseModle.setInitAmount(analyseResult.getCurrentAmount());
-                }
+//                if (analyseResult.getCurrentAmount() > ResultAnalyseModle.getInitAmount()) {
+//                    log.info("当前余额" + analyseResult.getCurrentAmount() + "大于初始资金" + ResultAnalyseModle.getInitAmount() + ".重新初始化资金为" + analyseResult.getCurrentAmount());
+//                    ResultAnalyseModle.setInitAmount(analyseResult.getCurrentAmount());
+//                }
             }else if (mode_current == mode_fighting) {
                 if (analyseResult.getWinRate() >= win_rate_threshold_up) {
                     mode_current = mode_defend;
                     riskStrategyModel.setUnit(unit_defend);
                     riskStrategyModel.setRiskRate(risk_defend);
                     riskStrategyModel.setMode(mode_defend);
+                    ResultAnalyseModle.setInitAmount(analyseResult.getCurrentAmount());
                     log.info("mode_fighting change to mode_defend。当前余额为:" + analyseResult.getCurrentAmount());
                     MailUtil.sendSSCAcountMail("mode_fighting change to mode_defend。当前余额为:" + analyseResult.getCurrentAmount());
                 }else {

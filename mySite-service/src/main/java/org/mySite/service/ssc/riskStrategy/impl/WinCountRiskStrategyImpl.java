@@ -9,9 +9,10 @@ import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
 
 public class WinCountRiskStrategyImpl implements IRiskStrategy {
     private static Logger log = LogManager.getLogger(WinCountRiskStrategyImpl.class);
+    private double min_unit = 0.002;
     public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, int orderCount) {
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
-        riskStrategyModel.setUnit(SSCConstants.min_unit);
+        riskStrategyModel.setUnit(min_unit);
         //每次的风险比例
         double riskRate = 0;
         if (analyseResult != null) {

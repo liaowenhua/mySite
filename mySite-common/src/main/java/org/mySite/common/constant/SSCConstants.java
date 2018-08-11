@@ -3,7 +3,7 @@ package org.mySite.common.constant;
 public interface SSCConstants {
     //账户信息
     String user = "liaowenhua22";
-    String jsessionId = "3EE01A1057B9F13852FA84FA20D1075A1C97FAD2";
+    String jsessionId = "49DE0C1932B2C8D8EFD882FF4CAE425A483F4830";
     String swtichOpen = "n621";
 
     //监控邮件相关信息
@@ -13,17 +13,8 @@ public interface SSCConstants {
     String mail_send_to = "502128553@qq.com";
     String mail_send_from = "13661323573@163.com";
 
-    //资金管理参数
-    /**模式：元(2)、角、分、厘(0.002).*/
-    double min_unit = 0.02;
-
-    double custom_risk_rate = 0.002;
-    double custom_min_unit = 0.002;
-
-
-
     //用于监控盈亏的初始资金。如果这里设置为0，那么会在监控任务中取当前余额为初始资金
-    double ssc_monitor_init_amount = 745;
+    double ssc_monitor_init_amount = 658.8;
     //订单任务时间间隔，单位毫秒
     long interval_mill_second = 30000;//60*1000*1 1分钟
     //账户监控邮件间隔，单位毫秒
