@@ -12,6 +12,7 @@ import org.mySite.common.util.HttpRequestUtil;
 import org.mySite.domain.*;
 import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
 import org.mySite.service.ssc.riskStrategy.impl.ManueRiskStrategyImpl;
+import org.mySite.service.ssc.riskStrategy.impl.WinRateRiskStrategyImpl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -287,9 +288,9 @@ public class SSCService {
      */
     public RiskStrategyModel getRiskStrategyInfo(SSCInfo sscInfo, int orderCount) {
         //IRiskStrategy riskStrategy = new WinCountRiskStrategyImpl();//按照近期连赢或者连亏的数量动态调整
-        //IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
+        IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
         //IRiskStrategy riskStrategy = new RecentWinRateRistStrategyImpl();//按照近期的盈利单比亏损单动态调整
-        IRiskStrategy riskStrategy = new ManueRiskStrategyImpl();
+        //IRiskStrategy riskStrategy = new ManueRiskStrategyImpl();
         ResultAnalyseModle analyseResult = this.analyseResult(sscInfo, "", "", AutoStrategyConstant.analyse_count);
         RiskStrategyModel strategyModel = riskStrategy.getRiskRate(analyseResult, orderCount);
         return strategyModel;
