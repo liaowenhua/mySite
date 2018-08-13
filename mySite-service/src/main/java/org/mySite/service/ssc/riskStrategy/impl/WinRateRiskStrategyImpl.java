@@ -33,7 +33,7 @@ public class WinRateRiskStrategyImpl implements IRiskStrategy {
         if (analyseResult != null) {
             log.info("current mode is " + mode_current);
             if (mode_current == mode_defend) {
-                if (analyseResult.getWinRate() <= win_rate_threshold_dowm) {
+                if (analyseResult.getCurrentWinRate() <= win_rate_threshold_dowm) {
                     mode_current = mode_fighting;
                     riskStrategyModel.setUnit(unit_fighting);
                     riskStrategyModel.setRiskRate(risk_fighting);
@@ -51,7 +51,7 @@ public class WinRateRiskStrategyImpl implements IRiskStrategy {
 //                    ResultAnalyseModle.setInitAmount(analyseResult.getCurrentAmount());
 //                }
             }else if (mode_current == mode_fighting) {
-                if (analyseResult.getWinRate() >= win_rate_threshold_up) {
+                if (analyseResult.getCurrentWinRate() >= win_rate_threshold_up) {
                     mode_current = mode_defend;
                     riskStrategyModel.setUnit(unit_defend);
                     riskStrategyModel.setRiskRate(risk_defend);
@@ -65,7 +65,7 @@ public class WinRateRiskStrategyImpl implements IRiskStrategy {
                     riskStrategyModel.setRiskRate(risk_fighting);
                     riskStrategyModel.setMode(mode_fighting);
                 }
-                if (analyseResult.getWinRate() <= -0.5) {
+                if (analyseResult.getCurrentWinRate() <= -0.5) {
                     log.error("注意：已经亏损50%！");
                     MailUtil.sendSSCAcountMail("注意：已经亏损50%！当前余额为:" + analyseResult.getCurrentAmount());
                 }

@@ -172,11 +172,26 @@ public class ResultAnalyseModle {
         this.winCountRate = winCountRate;
     }
 
-    public double getWinRate() {
+    /**
+     * 当前的盈利率
+     * @return
+     */
+    public double getCurrentWinRate() {
         if (currentAmount > 0 && initAmount > 0) {
             this.winRate = (currentAmount - initAmount) / initAmount;
         }
         return winRate;
+    }
+
+    /**
+     * 整体赢率
+     * @return
+     */
+    public double getOriginWinRate() {
+        if (SSCConstants.ssc_monitor_init_amount > 0) {
+            return (currentAmount - SSCConstants.ssc_monitor_init_amount) / SSCConstants.ssc_monitor_init_amount;
+        }
+        return 0;
     }
 
     public void setWinRate(double winRate) {

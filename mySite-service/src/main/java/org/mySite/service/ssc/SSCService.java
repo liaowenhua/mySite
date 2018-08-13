@@ -11,7 +11,7 @@ import org.mySite.common.constant.SSCConstants.AutoStrategyConstant;
 import org.mySite.common.util.HttpRequestUtil;
 import org.mySite.domain.*;
 import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
-import org.mySite.service.ssc.riskStrategy.impl.ManueRiskStrategyImpl;
+import org.mySite.service.ssc.riskStrategy.impl.FixedLoseMoneyStrategyImpl;
 import org.mySite.service.ssc.riskStrategy.impl.WinRateRiskStrategyImpl;
 
 import java.math.BigDecimal;
@@ -75,7 +75,7 @@ public class SSCService {
             //当前开放下注的订单
             String currentOpenSeasonId = sscInfo.getCurrentOpenSeasonId();
             //当前投注期数比最新开奖期数大1
-            if(getSeasonIdSuffix(currentOpenSeasonId) - getSeasonIdSuffix(lastestSeasonId) == 1) {
+            if(getSeasonIdSuffix(currentOpenSeasonId) - getSeasonIdSuffix(lastestSeasonId) == 1 || isFirstSeadon(currentOpenSeasonId)) {
                 //当前无订单
                 if (currentOrders.isEmpty()) {
                     log.info("currentOrders为空");
@@ -100,6 +100,21 @@ public class SSCService {
         }
         log.info("merge结果:" + sscOrder.toString());
         return sscOrder;
+    }
+
+    /**
+     * 判断是不是每天的第一期
+     * @param currentOpenSeasonId
+     * @return
+     */
+    private boolean isFirstSeadon(String currentOpenSeasonId) {
+        if (StringUtils.isNotEmpty(currentOpenSeasonId)) {
+            Integer seasonIdSuffix = getSeasonIdSuffix(currentOpenSeasonId);
+            if (seasonIdSuffix != null && seasonIdSuffix.equals(1)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -288,9 +303,10 @@ public class SSCService {
      */
     public RiskStrategyModel getRiskStrategyInfo(SSCInfo sscInfo, int orderCount) {
         //IRiskStrategy riskStrategy = new WinCountRiskStrategyImpl();//按照近期连赢或者连亏的数量动态调整
-        IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
+        //IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
         //IRiskStrategy riskStrategy = new RecentWinRateRistStrategyImpl();//按照近期的盈利单比亏损单动态调整
         //IRiskStrategy riskStrategy = new ManueRiskStrategyImpl();
+        IRiskStrategy riskStrategy = new FixedLoseMoneyStrategyImpl();
         ResultAnalyseModle analyseResult = this.analyseResult(sscInfo, "", "", AutoStrategyConstant.analyse_count);
         RiskStrategyModel strategyModel = riskStrategy.getRiskRate(analyseResult, orderCount);
         return strategyModel;
@@ -539,10 +555,12 @@ public class SSCService {
 
     public String getAnalyseInfo(ResultAnalyseModle analyseModle, SSCInfo sscInfo) {
         StringBuffer contentBuf = new StringBuffer();
-        contentBuf.append("初始资金为：").append(ResultAnalyseModle.getInitAmount()).append("<br>")
+        contentBuf.append("原始资金为").append(SSCConstants.ssc_monitor_init_amount).append("<br>")
+                .append("本次初始资金为：").append(ResultAnalyseModle.getInitAmount()).append("<br>")
                 .append("当前账户总金额:").append(sscInfo.getAmount()).append("<br>")
-                .append("盈亏额：").append(sscInfo.getAmount() - ResultAnalyseModle.getInitAmount()).append("<br>")
-                .append("整体盈利率为:").append(analyseModle.getWinRate() * 100).append("%").append("<br>");
+                .append("整体盈亏额：").append(sscInfo.getAmount() - SSCConstants.ssc_monitor_init_amount).append("<br>")
+                .append("本次盈利率为").append(analyseModle.getCurrentWinRate() *100).append("%").append("<br>")
+                .append("整体盈利率为:").append(analyseModle.getOriginWinRate() * 100).append("%").append("<br>");
 
         //contentBuf.append("当前模式为：").append(WinRateRiskStrategyImpl.getMode_current()).append("<br>");
 
