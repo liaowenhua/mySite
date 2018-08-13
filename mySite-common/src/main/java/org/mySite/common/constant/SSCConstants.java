@@ -14,7 +14,7 @@ public interface SSCConstants {
     String mail_send_from = "13661323573@163.com";
 
     //用于监控盈亏的初始资金。如果这里设置为0，那么会在监控任务中取当前余额为初始资金
-    double ssc_monitor_init_amount = 1082.65;
+    double ssc_monitor_init_amount = 1155.45;
     //订单任务时间间隔，单位毫秒
     long interval_mill_second = 30000;//60*1000*1 1分钟
     //账户监控邮件间隔，单位毫秒
