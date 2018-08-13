@@ -25,7 +25,7 @@ public class WinRateRiskStrategyImpl implements IRiskStrategy {
     //防守模式下的资金风险比例
     private static double risk_defend = 0.002;
     //进攻模式下的资金风险比例
-    private static double risk_fighting = 0.1;
+    private static double risk_fighting = 0.05;
 
     public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, int orderCount) {
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
