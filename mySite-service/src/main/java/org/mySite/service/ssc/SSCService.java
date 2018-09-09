@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mySite.common.bean.SSCCookie;
+import org.mySite.common.constant.PositionEnum;
 import org.mySite.common.constant.SSCConstants;
 import org.mySite.common.constant.SSCConstants.AutoStrategyConstant;
 import org.mySite.common.util.HttpRequestUtil;
@@ -128,7 +129,7 @@ public class SSCService {
             for (String s : currentOrders.getW()) {
                 if (!codeDic.get(s).contains(lastestCode[0])) {
                     result.getW().add(s);
-                } 
+                }
             }
 
             for (String s : currentOrders.getQ()) {
@@ -154,6 +155,22 @@ public class SSCService {
                     result.getG().add(s);
                 }
             }
+
+            Set<AbsentedNode> absentedNodeSet = currentOrders.getAbsentedNodeSet();
+            for (int i=0; i<lastestCode.length; i++) {
+                for (AbsentedNode node : absentedNodeSet) {
+                    if (node.getPosition() == i) {
+                        if (codeDic.get(node.getCode()).contains(lastestCode[1])) {
+                            //中奖，则去掉该node
+                            absentedNodeSet.remove(node);
+                        }else {
+                            //未中奖，遗漏加1
+                            node.setAbsent(node.getAbsent() + 1);
+                        }
+                    }
+                }
+            }
+            result.setAbsentedNodeSet(absentedNodeSet);
         }
         return result;
     }
@@ -166,15 +183,15 @@ public class SSCService {
         if (order != null && !order.isEmpty()) {
             List<SSCOrderNode> orderNodes = new ArrayList<SSCOrderNode>();
             //万位
-            fillOrderNode(orderNodes, 0 , order.getW(), riskStrategyInfo);
+            fillOrderNode(orderNodes, PositionEnum.W.position() , order.getW(), riskStrategyInfo);
             //千位
-            fillOrderNode(orderNodes, 1 , order.getQ(), riskStrategyInfo);
+            fillOrderNode(orderNodes, PositionEnum.Q.position() , order.getQ(), riskStrategyInfo);
             //百位
-            fillOrderNode(orderNodes, 2 , order.getB(), riskStrategyInfo);
+            fillOrderNode(orderNodes, PositionEnum.B.position() , order.getB(), riskStrategyInfo);
             //十位
-            fillOrderNode(orderNodes, 3 , order.getS(), riskStrategyInfo);
+            fillOrderNode(orderNodes, PositionEnum.S.position() , order.getS(), riskStrategyInfo);
             //个位
-            fillOrderNode(orderNodes, 4 , order.getG(), riskStrategyInfo);
+            fillOrderNode(orderNodes, PositionEnum.G.position() , order.getG(), riskStrategyInfo);
 
             double orderMoney = 0;
             int count = 0;
@@ -303,10 +320,10 @@ public class SSCService {
      */
     public RiskStrategyModel getRiskStrategyInfo(SSCInfo sscInfo, int orderCount) {
         //IRiskStrategy riskStrategy = new WinCountRiskStrategyImpl();//按照近期连赢或者连亏的数量动态调整
-        //IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
+        IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
         //IRiskStrategy riskStrategy = new RecentWinRateRistStrategyImpl();//按照近期的盈利单比亏损单动态调整
         //IRiskStrategy riskStrategy = new ManueRiskStrategyImpl();
-        IRiskStrategy riskStrategy = new FixedLoseMoneyStrategyImpl();
+        //IRiskStrategy riskStrategy = new FixedLoseMoneyStrategyImpl();
         ResultAnalyseModle analyseResult = this.analyseResult(sscInfo, "", "", AutoStrategyConstant.analyse_count);
         RiskStrategyModel strategyModel = riskStrategy.getRiskRate(analyseResult, orderCount);
         return strategyModel;
@@ -315,11 +332,26 @@ public class SSCService {
     private void fillCodeSets(SSCOrder sscOrder, SSCInfo sscInfo) {
         String[] lastestCode = sscInfo.getLastestCode();
         if (sscOrder != null && lastestCode != null && lastestCode.length == 5) {
-            if (codes.contains(lastestCode[0])) sscOrder.getW().add(lastestCode[0]);
-            if (codes.contains(lastestCode[1])) sscOrder.getQ().add(lastestCode[1]);
-            if (codes.contains(lastestCode[2])) sscOrder.getB().add(lastestCode[2]);
-            if (codes.contains(lastestCode[3])) sscOrder.getS().add(lastestCode[3]);
-            if (codes.contains(lastestCode[4])) sscOrder.getG().add(lastestCode[4]);
+            if (codes.contains(lastestCode[0])) {
+                sscOrder.getW().add(lastestCode[0]);
+                sscOrder.getAbsentedNodeSet().add(new AbsentedNode(lastestCode[0], 0));
+            }
+            if (codes.contains(lastestCode[1])) {
+                sscOrder.getQ().add(lastestCode[1]);
+                sscOrder.getAbsentedNodeSet().add(new AbsentedNode(lastestCode[1], 1));
+            }
+            if (codes.contains(lastestCode[2])) {
+                sscOrder.getB().add(lastestCode[2]);
+                sscOrder.getAbsentedNodeSet().add(new AbsentedNode(lastestCode[2], 2));
+            }
+            if (codes.contains(lastestCode[3])) {
+                sscOrder.getS().add(lastestCode[3]);
+                sscOrder.getAbsentedNodeSet().add(new AbsentedNode(lastestCode[3], 3));
+            }
+            if (codes.contains(lastestCode[4])) {
+                sscOrder.getG().add(lastestCode[4]);
+                sscOrder.getAbsentedNodeSet().add(new AbsentedNode(lastestCode[4], 4));
+            }
             sscOrder.setSeasonId(sscInfo.getCurrentOpenSeasonId());
         }
     }
@@ -555,9 +587,10 @@ public class SSCService {
 
     public String getAnalyseInfo(ResultAnalyseModle analyseModle, SSCInfo sscInfo) {
         StringBuffer contentBuf = new StringBuffer();
-        contentBuf.append("原始资金为").append(SSCConstants.ssc_monitor_init_amount).append("<br>")
-                .append("本次初始资金为：").append(ResultAnalyseModle.getInitAmount()).append("<br>")
+        contentBuf
                 .append("当前账户总金额:").append(sscInfo.getAmount()).append("<br>")
+                .append("原始资金为").append(SSCConstants.ssc_monitor_init_amount).append("<br>")
+                .append("本次初始资金为：").append(ResultAnalyseModle.getInitAmount()).append("<br>")
                 .append("整体盈亏额：").append(sscInfo.getAmount() - SSCConstants.ssc_monitor_init_amount).append("<br>")
                 .append("本次盈利率为").append(analyseModle.getCurrentWinRate() *100).append("%").append("<br>")
                 .append("整体盈利率为:").append(analyseModle.getOriginWinRate() * 100).append("%").append("<br>");

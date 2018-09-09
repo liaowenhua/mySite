@@ -1,5 +1,6 @@
 package org.mySite.domain;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,8 +13,22 @@ public class SSCOrder {
     private Set<String> s = new HashSet<String>();//十位
     private Set<String> g = new HashSet<String>();//个位
 
+    private Set<AbsentedNode> absentedNodeSet = new HashSet<AbsentedNode>();
+
+    public Set<AbsentedNode> getAbsentedNodeSet() {
+        return absentedNodeSet;
+    }
+
+    public void setAbsentedNodeSet(Set<AbsentedNode> absentedNodeSet) {
+        this.absentedNodeSet = absentedNodeSet;
+    }
+
+    public void putAbsentedNode(AbsentedNode node) {
+        absentedNodeSet.add(node);
+    }
+
     public boolean isEmpty() {
-        return w.isEmpty() && q.isEmpty() && b.isEmpty() && s.isEmpty() && g.isEmpty();
+        return (w.isEmpty() && q.isEmpty() && b.isEmpty() && s.isEmpty() && g.isEmpty()) || absentedNodeSet.size() == 0;
     }
 
     public int getOrderCount() {
@@ -21,7 +36,8 @@ public class SSCOrder {
     }
     @Override
     public String toString() {
-        return "seasonId:" + seasonId + "," + w.toString() + "-" + q.toString() + "-"  + b.toString() + "-"  + s.toString() + "-"  + g.toString();
+        return "seasonId:" + seasonId + "," + w.toString() + "-" + q.toString() + "-"  + b.toString() + "-"  + s.toString() + "-"  + g.toString()
+                + "absentedNodeSet:" + absentedNodeSet.toString();
     }
 
     public String getOrderId() {

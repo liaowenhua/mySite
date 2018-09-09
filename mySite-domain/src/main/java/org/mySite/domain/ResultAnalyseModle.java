@@ -12,6 +12,7 @@ import java.util.Map;
  */
 public class ResultAnalyseModle {
     private static double initAmount = SSCConstants.ssc_monitor_init_amount;//初始金额
+    private static Drop drop = new Drop();
     private double currentAmount;//当前资金
     private int totalCount;//总单数
     private int winCount;//盈利总单数
@@ -26,6 +27,7 @@ public class ResultAnalyseModle {
     private Date startTime;//统计的起始时间
     private Date endTime;//统计的结束时间
     private Map<String,Node> detailResult = new HashMap<String,Node>();//每种组合的详细结果。
+
 
     public ResultAnalyseModle() {
         detailResult.put(SSCConstants.code_map_0, new Node());
@@ -53,6 +55,10 @@ public class ResultAnalyseModle {
         public void setWinCount(int winCount) {
             this.winCount = winCount;
         }
+    }
+
+    public static Drop getDrop() {
+        return drop;
     }
 
     public double getRecentWinCountOrderRate() {
