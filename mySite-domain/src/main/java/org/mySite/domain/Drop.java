@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class Drop {
     //key:位置 map：key-code value-遗漏次数
-    private Map<Integer, Map<String, Integer>> drop = new HashMap<>();
+    private Map<Integer, Map<String, Integer>> drop = new HashMap<Integer, Map<String, Integer>>();
 
     //最后检查的期数
     private String lastestCheckSeason;
@@ -52,7 +52,7 @@ public class Drop {
     private Map<String, Integer> getDrop(Integer order) {
         Map<String, Integer> map = drop.get(order);
         if (map == null) {
-            return new HashMap<>();
+            return new HashMap<String, Integer>();
         }
         return map;
     }

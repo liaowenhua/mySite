@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.mySite.common.util.MailUtil;
 import org.mySite.domain.ResultAnalyseModle;
 import org.mySite.domain.RiskStrategyModel;
+import org.mySite.domain.SSCOrder;
 import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
 
 public class FixedLoseMoneyStrategyImpl implements IRiskStrategy {
@@ -27,7 +28,7 @@ public class FixedLoseMoneyStrategyImpl implements IRiskStrategy {
     //进攻模式下的资金风险比例
     private static double risk_fighting = 0.02;
 
-    public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, int orderCount) {
+    public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, SSCOrder order) {
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
         log.info("当前使用的策略类是：FixedLoseMoneyStrategyImpl");
         if (analyseResult != null) {
@@ -70,7 +71,7 @@ public class FixedLoseMoneyStrategyImpl implements IRiskStrategy {
                     MailUtil.sendSSCAcountMail("注意：已经亏损50%！当前余额为:" + analyseResult.getCurrentAmount());
                 }
             }
-            int price = (int)Math.round((ResultAnalyseModle.getInitAmount() * riskStrategyModel.getRiskRate()) / (riskStrategyModel.getUnit()*4) / orderCount);
+            int price = (int)Math.round((ResultAnalyseModle.getInitAmount() * riskStrategyModel.getRiskRate()) / (riskStrategyModel.getUnit()*4) / order.getOrderCount());
             riskStrategyModel.setPrice(price);
         }
         return riskStrategyModel;

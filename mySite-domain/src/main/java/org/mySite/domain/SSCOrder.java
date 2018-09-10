@@ -49,7 +49,7 @@ public class SSCOrder {
     }
 
     public int getOrderCount() {
-        return w.size() + q.size() + b.size() + s.size() + g.size();
+        return absentedNodeSet.size();
     }
     @Override
     public String toString() {

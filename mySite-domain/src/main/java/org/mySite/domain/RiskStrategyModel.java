@@ -19,6 +19,17 @@ public class RiskStrategyModel {
     //总权重
     private int totalWeight = 1;
 
+    //最大遗漏，当大于最大遗留数后，不提交订单
+    private int maxAbsent;
+
+    public int getMaxAbsent() {
+        return maxAbsent;
+    }
+
+    public void setMaxAbsent(int maxAbsent) {
+        this.maxAbsent = maxAbsent;
+    }
+
     public int getTotalWeight() {
         return totalWeight;
     }
@@ -33,9 +44,13 @@ public class RiskStrategyModel {
         if (totalWeight == 1) {
             price = (int)Math.round((totalAmount * riskRate) / (unit*4) / orderCount);
         }else {
-            price = (int)Math.round((totalAmount * riskRate * (weight / totalWeight)) / (unit*4) / orderCount);
+            price = (int)Math.round((totalAmount * riskRate * ((double)weight / (double)totalWeight)) / (unit*4));
         }
         return price;
+    }
+
+    public static void main(String[] args){
+        System.out.println((int)Math.round((109 * 0.05) / (0.002 * 4) / 4)  );
     }
 
     public int getOrderCount() {

@@ -2,12 +2,13 @@ package org.mySite.service.ssc.riskStrategy.impl;
 
 import org.mySite.domain.ResultAnalyseModle;
 import org.mySite.domain.RiskStrategyModel;
+import org.mySite.domain.SSCOrder;
 import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
 
 public class FixedRiskStrategyImpl implements IRiskStrategy {
 
     @Override
-    public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, int orderCount) {
+    public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, SSCOrder order) {
 
         throw new UnsupportedOperationException("FixedRiskStrategyImpl不支持getRiskRate方法。请直接调用静态方法getStrategyModel");
     }

@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.mySite.common.util.MailUtil;
 import org.mySite.domain.ResultAnalyseModle;
 import org.mySite.domain.RiskStrategyModel;
+import org.mySite.domain.SSCOrder;
 import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
 
 public class RecentWinRateRistStrategyImpl implements IRiskStrategy {
@@ -30,7 +31,7 @@ public class RecentWinRateRistStrategyImpl implements IRiskStrategy {
     private static double recent_WinCountOrder_Rate_Threshold  =  0.43;
     private static double recent_WinCountOrder_Rate_Threshold_Up  =  1;
     @Override
-    public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, int orderCount) {
+    public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, SSCOrder order) {
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
         if (analyseResult != null) {
             log.info("current mode is " + mode_current);
@@ -76,7 +77,7 @@ public class RecentWinRateRistStrategyImpl implements IRiskStrategy {
                     MailUtil.sendSSCAcountMail("注意：已经亏损50%！当前余额为:" + analyseResult.getCurrentAmount());
                 }
             }
-            int price = (int)Math.round((analyseResult.getCurrentAmount() * riskStrategyModel.getRiskRate()) / (riskStrategyModel.getUnit()*4) / orderCount);
+            int price = (int)Math.round((analyseResult.getCurrentAmount() * riskStrategyModel.getRiskRate()) / (riskStrategyModel.getUnit()*4) / order.getOrderCount());
             riskStrategyModel.setPrice(price);
         }
         return riskStrategyModel;

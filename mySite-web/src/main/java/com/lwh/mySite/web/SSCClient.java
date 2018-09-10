@@ -23,7 +23,7 @@ public class SSCClient {
             SSCOrder sscOrder = sscService.mergeOrder(sscInfo, isInit);
             String report = sscService.genAnalyseReport(sscInfo);
             log.info("分析报告：" + report.replace("\\<br\\>", ";"));
-            RiskStrategyModel riskStrategyInfo = sscService.getRiskStrategyInfo(sscInfo, sscOrder.getOrderCount());
+            RiskStrategyModel riskStrategyInfo = sscService.getRiskStrategyInfo(sscInfo, sscOrder);
             sscService.submitOrders(sscOrder, sscInfo, riskStrategyInfo);
             isInit = false;
             log.info("进入休眠...");

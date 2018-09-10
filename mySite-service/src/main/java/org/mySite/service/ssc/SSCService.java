@@ -158,20 +158,22 @@ public class SSCService {
             }
 
             Set<AbsentedNode> absentedNodeSet = currentOrders.getAbsentedNodeSet();
-            for (int i=0; i<lastestCode.length; i++) {
-                for (AbsentedNode node : absentedNodeSet) {
+            Set<AbsentedNode> newAbsentedNodeSet = new HashSet<AbsentedNode>();
+            Iterator<AbsentedNode> it = absentedNodeSet.iterator();
+            while (it.hasNext()) {
+                AbsentedNode node = it.next();
+                for (int i=0; i<lastestCode.length; i++) {
                     if (node.getPosition() == i) {
-                        if (codeDic.get(node.getCode()).contains(lastestCode[1])) {
-                            //中奖，则去掉该node
-                            absentedNodeSet.remove(node);
-                        }else {
+                        if (!codeDic.get(node.getCode()).contains(lastestCode[i])) {
                             //未中奖，遗漏加1
                             node.setAbsent(node.getAbsent() + 1);
+                            newAbsentedNodeSet.add(node);
                         }
                     }
                 }
+
             }
-            result.setAbsentedNodeSet(absentedNodeSet);
+            result.setAbsentedNodeSet(newAbsentedNodeSet);
         }
         return result;
     }
@@ -265,7 +267,13 @@ public class SSCService {
 
     private void fillOrderNode(List<SSCOrderNode> orderNodes, int position, SSCOrder order, RiskStrategyModel riskStrategyInfo) {
         Set<AbsentedNode> absentedNodeSet = order.getAbsentedNodeSet();
-        for (AbsentedNode node : absentedNodeSet) {
+        Iterator<AbsentedNode> it = absentedNodeSet.iterator();
+        while (it.hasNext()) {
+            AbsentedNode node = it.next();
+            if (node.getAbsent() > riskStrategyInfo.getMaxAbsent()) {
+                it.remove();
+                continue;
+            }
             if (node.getPosition() == position) {
                 SSCOrderNode sscOrderNode = new SSCOrderNode();
                 sscOrderNode.setUnit(riskStrategyInfo.getUnit());
@@ -293,17 +301,18 @@ public class SSCService {
     /**
      * 资金管理相关参数
      * @param sscInfo
-     * @param orderCount
      * @return
      */
-    public RiskStrategyModel getRiskStrategyInfo(SSCInfo sscInfo, int orderCount) {
-        //IRiskStrategy riskStrategy = new WinCountRiskStrategyImpl();//按照近期连赢或者连亏的数量动态调整
-        IRiskStrategy riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
-        //IRiskStrategy riskStrategy = new RecentWinRateRistStrategyImpl();//按照近期的盈利单比亏损单动态调整
-        //IRiskStrategy riskStrategy = new ManueRiskStrategyImpl();
-        //IRiskStrategy riskStrategy = new FixedLoseMoneyStrategyImpl();
+    public RiskStrategyModel getRiskStrategyInfo(SSCInfo sscInfo, SSCOrder order) {
+        IRiskStrategy riskStrategy;
+        //riskStrategy = new WinCountRiskStrategyImpl();//按照近期连赢或者连亏的数量动态调整
+        //riskStrategy = new WinRateRiskStrategyImpl();//按照整体盈利率动态调整
+        //riskStrategy = new RecentWinRateRistStrategyImpl();//按照近期的盈利单比亏损单动态调整
+        //riskStrategy = new ManueRiskStrategyImpl();
+        //riskStrategy = new FixedLoseMoneyStrategyImpl();
+        riskStrategy = new AbsentRiskStategyImpl();
         ResultAnalyseModle analyseResult = this.analyseResult(sscInfo, "", "", AutoStrategyConstant.analyse_count);
-        RiskStrategyModel strategyModel = riskStrategy.getRiskRate(analyseResult, orderCount);
+        RiskStrategyModel strategyModel = riskStrategy.getRiskRate(analyseResult, order);
         return strategyModel;
     }
 
@@ -353,10 +362,6 @@ public class SSCService {
         //ResultAnalyseModle result = sscService.analyseResult("", "", 50);
         //log.info(result.toString());
         //log.error(sscService.getPrice(99.4f, 0.002, 3));
-    }
-
-    private boolean isSeasonIdRefresh(String seasonId) {
-        return false;
     }
 
     private String sendHttpRequestForInfo() {
@@ -425,19 +430,21 @@ public class SSCService {
                         String content = jsonObject.getString("content");
                         if (StringUtils.isNotEmpty(content)) {
                             String[] codeArray = content.split(",");
+                            Set<AbsentedNode> absentedNodeSet = currentOrder.getAbsentedNodeSet();
                             for (int i=0; i<codeArray.length; i++) {
                                 if (StringUtils.isNumeric(codeArray[i])) {
-                                    if (i == 0) {
+                                    if (i == PositionEnum.W.position()) {
                                         currentOrder.getW().add(codeDic.get(codeArray[i]));
-                                    }else if(i ==1) {
+                                    }else if(i == PositionEnum.Q.position()) {
                                         currentOrder.getQ().add(codeDic.get(codeArray[i]));
-                                    }else if(i ==2) {
+                                    }else if(i == PositionEnum.B.position()) {
                                         currentOrder.getB().add(codeDic.get(codeArray[i]));
-                                    }else if(i ==3) {
+                                    }else if(i == PositionEnum.S.position()) {
                                         currentOrder.getS().add(codeDic.get(codeArray[i]));
                                     }else {
                                         currentOrder.getG().add(codeDic.get(codeArray[i]));
                                     }
+                                    absentedNodeSet.add(new AbsentedNode(codeArray[i], i));
                                 }
                             }
                         }
