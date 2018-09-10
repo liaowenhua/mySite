@@ -1,5 +1,7 @@
 package org.mySite.domain;
 
+import org.mySite.common.constant.PositionEnum;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +31,21 @@ public class SSCOrder {
 
     public boolean isEmpty() {
         return (w.isEmpty() && q.isEmpty() && b.isEmpty() && s.isEmpty() && g.isEmpty()) || absentedNodeSet.size() == 0;
+    }
+
+    public Set<String> getCodeSetPosition(int position) {
+        if (position == PositionEnum.W.position()) {
+            return w;
+        }else if (position == PositionEnum.Q.position()) {
+            return q;
+        }else if (position == PositionEnum.B.position()) {
+            return b;
+        }else if (position == PositionEnum.S.position()) {
+            return s;
+        }else if (position == PositionEnum.G.position()) {
+            return g;
+        }
+        return null;
     }
 
     public int getOrderCount() {

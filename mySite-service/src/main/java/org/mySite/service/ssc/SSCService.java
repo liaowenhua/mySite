@@ -12,6 +12,7 @@ import org.mySite.common.constant.SSCConstants.AutoStrategyConstant;
 import org.mySite.common.util.HttpRequestUtil;
 import org.mySite.domain.*;
 import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
+import org.mySite.service.ssc.riskStrategy.impl.AbsentRiskStategyImpl;
 import org.mySite.service.ssc.riskStrategy.impl.FixedLoseMoneyStrategyImpl;
 import org.mySite.service.ssc.riskStrategy.impl.WinRateRiskStrategyImpl;
 
@@ -182,17 +183,9 @@ public class SSCService {
     public void submitOrders(SSCOrder order, SSCInfo sscInfo, RiskStrategyModel riskStrategyInfo) {
         if (order != null && !order.isEmpty()) {
             List<SSCOrderNode> orderNodes = new ArrayList<SSCOrderNode>();
-            //万位
-            fillOrderNode(orderNodes, PositionEnum.W.position() , order.getW(), riskStrategyInfo);
-            //千位
-            fillOrderNode(orderNodes, PositionEnum.Q.position() , order.getQ(), riskStrategyInfo);
-            //百位
-            fillOrderNode(orderNodes, PositionEnum.B.position() , order.getB(), riskStrategyInfo);
-            //十位
-            fillOrderNode(orderNodes, PositionEnum.S.position() , order.getS(), riskStrategyInfo);
-            //个位
-            fillOrderNode(orderNodes, PositionEnum.G.position() , order.getG(), riskStrategyInfo);
-
+            for (PositionEnum positionEnum : PositionEnum.values()) {
+                fillOrderNode(orderNodes, positionEnum.position() , order, riskStrategyInfo);
+            }
             double orderMoney = 0;
             int count = 0;
             if (orderNodes.size() > 0) {
@@ -270,36 +263,21 @@ public class SSCService {
 
     }
 
-    private void fillOrderNode() {
-
-    }
-
-    private void fillOrderNode(List<SSCOrderNode> orderNodes, int position, Set<String> codeSet, RiskStrategyModel riskStrategyInfo) {
-        if (codeSet != null && codeSet.size() > 0) {
-            for (String code : codeSet) {
+    private void fillOrderNode(List<SSCOrderNode> orderNodes, int position, SSCOrder order, RiskStrategyModel riskStrategyInfo) {
+        Set<AbsentedNode> absentedNodeSet = order.getAbsentedNodeSet();
+        for (AbsentedNode node : absentedNodeSet) {
+            if (node.getPosition() == position) {
                 SSCOrderNode sscOrderNode = new SSCOrderNode();
                 sscOrderNode.setUnit(riskStrategyInfo.getUnit());
-                fillContent(position, code, sscOrderNode);
+                fillContent(position, node.getCode(), sscOrderNode);
+                sscOrderNode.setPrice(riskStrategyInfo.getPriceWithWeight(node.getAbsent() + 1));
                 orderNodes.add(sscOrderNode);
             }
-            for (SSCOrderNode node : orderNodes) {
-                node.setPrice(riskStrategyInfo.getPrice());
-            }
-
         }
     }
 
     private void fillContent(int position, String code, SSCOrderNode sscOrderNode) {
-        String content = null;
-        if ("0".equals(code)) {
-            content = "0369";
-        }else if ("2".equals(code)) {
-            content = "0578";
-        }else if ("5".equals(code)) {
-            content = "3467";
-        }else if ("9".equals(code)) {
-            content = "0378";
-        }
+        String content = codeDic.get(code);
         String[] codeArray = new String[]{"-","-","-","-","-"};
         if (position >= 0 && position <= 4 && content != null) {
             codeArray[position] = content;

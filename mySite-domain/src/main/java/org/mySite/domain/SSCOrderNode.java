@@ -7,6 +7,16 @@ public class SSCOrderNode {
     private int price;//倍数
     private double unit;//最小单位金额，如分模式下 为0.02
 
+    transient private int weight = 1;
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
     public String getPlayId() {
         return playId;
     }
