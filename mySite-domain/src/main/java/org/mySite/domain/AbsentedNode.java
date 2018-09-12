@@ -4,7 +4,15 @@ public class AbsentedNode {
     private String code;
     private int absent = 0;
     private int position;
+    private boolean avaliable;
 
+    public boolean isAvaliable() {
+        return avaliable;
+    }
+
+    public void setAvaliable(boolean avaliable) {
+        this.avaliable = avaliable;
+    }
 
     public AbsentedNode() {}
 

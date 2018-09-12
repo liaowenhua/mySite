@@ -22,6 +22,8 @@ public class AbsentRiskStategyImpl implements IRiskStrategy {
     private static double risk = 0.05;
 
     private static int maxAbsent = 4;
+
+    private static int minAbsent = 3;
     @Override
     public RiskStrategyModel getRiskRate(ResultAnalyseModle analyseResult, SSCOrder order) {
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
@@ -38,6 +40,9 @@ public class AbsentRiskStategyImpl implements IRiskStrategy {
             if (node.getAbsent() > maxAbsent) {
                 it.remove();
                 continue;
+            }
+            if (node.getAbsent() >= minAbsent) {
+                node.setAvaliable(true);
             }
             totalWeight = totalWeight + node.getAbsent() + 1;
         }

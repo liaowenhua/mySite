@@ -13,8 +13,6 @@ import org.mySite.common.util.HttpRequestUtil;
 import org.mySite.domain.*;
 import org.mySite.service.ssc.riskStrategy.IRiskStrategy;
 import org.mySite.service.ssc.riskStrategy.impl.AbsentRiskStategyImpl;
-import org.mySite.service.ssc.riskStrategy.impl.FixedLoseMoneyStrategyImpl;
-import org.mySite.service.ssc.riskStrategy.impl.WinRateRiskStrategyImpl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -77,7 +75,7 @@ public class SSCService {
             //当前开放下注的订单
             String currentOpenSeasonId = sscInfo.getCurrentOpenSeasonId();
             //当前投注期数比最新开奖期数大1
-            if(getSeasonIdSuffix(currentOpenSeasonId) - getSeasonIdSuffix(lastestSeasonId) == 1 || isFirstSeadon(currentOpenSeasonId)) {
+            if(getSeasonIdSuffix(currentOpenSeasonId) - getSeasonIdSuffix(lastestSeasonId) == 1 || isFirstSeason(currentOpenSeasonId)) {
                 //当前无订单
                 if (currentOrders.isEmpty()) {
                     log.info("currentOrders为空");
@@ -98,6 +96,8 @@ public class SSCService {
             log.info("有还未开奖的订单。当前订单为:" + currentOrders.toString());
         }else if (sscInfo.isInTrading() && isInit) {
             currentOrders = sscInfo.getCurrentOrder();
+            //初始化遗漏次数 TODO
+
             log.info("当前有未开奖的订单，且是第一次初始化。加载未开奖订单到当前订单中.初始化的订单为：" + currentOrders.toString());
         }
         log.info("merge结果:" + sscOrder.toString());
@@ -109,7 +109,7 @@ public class SSCService {
      * @param currentOpenSeasonId
      * @return
      */
-    private boolean isFirstSeadon(String currentOpenSeasonId) {
+    private boolean isFirstSeason(String currentOpenSeasonId) {
         if (StringUtils.isNotEmpty(currentOpenSeasonId)) {
             Integer seasonIdSuffix = getSeasonIdSuffix(currentOpenSeasonId);
             if (seasonIdSuffix != null && seasonIdSuffix.equals(1)) {
@@ -270,6 +270,9 @@ public class SSCService {
         Iterator<AbsentedNode> it = absentedNodeSet.iterator();
         while (it.hasNext()) {
             AbsentedNode node = it.next();
+            if (!node.isAvaliable()) {
+                continue;
+            }
             if (node.getAbsent() > riskStrategyInfo.getMaxAbsent()) {
                 it.remove();
                 continue;
