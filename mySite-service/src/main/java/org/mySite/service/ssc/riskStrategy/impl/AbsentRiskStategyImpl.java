@@ -47,6 +47,8 @@ public class AbsentRiskStategyImpl implements IRiskStrategy {
                 log.info("达到最小遗漏次数.info:" + node.toString());
                 node.setAvaliable(true);
                 totalWeight = totalWeight + node.getAbsent() + 1;
+            }else {
+                node.setAvaliable(false);
             }
 
         }

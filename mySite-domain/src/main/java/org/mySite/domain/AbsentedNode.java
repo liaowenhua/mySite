@@ -4,7 +4,7 @@ public class AbsentedNode {
     private String code;
     private int absent = 0;
     private int position;
-    private boolean avaliable;
+    private boolean avaliable = true;
 
     public boolean isAvaliable() {
         return avaliable;
