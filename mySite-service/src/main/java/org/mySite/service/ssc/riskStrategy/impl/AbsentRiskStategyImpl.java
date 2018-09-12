@@ -38,10 +38,12 @@ public class AbsentRiskStategyImpl implements IRiskStrategy {
         while (it.hasNext()) {
             AbsentedNode node = it.next();
             if (node.getAbsent() > maxAbsent) {
+                log.info("超过最大遗漏，剔除.info:" + node.toString());
                 it.remove();
                 continue;
             }
             if (node.getAbsent() >= minAbsent) {
+                log.info("达到最小遗漏次数.info:" + node.toString());
                 node.setAvaliable(true);
             }
             totalWeight = totalWeight + node.getAbsent() + 1;
