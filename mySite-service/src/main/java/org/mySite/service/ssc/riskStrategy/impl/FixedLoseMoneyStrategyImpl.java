@@ -71,7 +71,7 @@ public class FixedLoseMoneyStrategyImpl implements IRiskStrategy {
                     MailUtil.sendSSCAcountMail("注意：已经亏损50%！当前余额为:" + analyseResult.getCurrentAmount());
                 }
             }
-            int price = (int)Math.round((ResultAnalyseModle.getInitAmount() * riskStrategyModel.getRiskRate()) / (riskStrategyModel.getUnit()*4) / order.getOrderCount());
+            int price = (int)Math.round((ResultAnalyseModle.getInitAmount() * riskStrategyModel.getRiskRate()) / (riskStrategyModel.getUnit()*4) / order.getAvailableOrderCount());
             riskStrategyModel.setPrice(price);
         }
         return riskStrategyModel;

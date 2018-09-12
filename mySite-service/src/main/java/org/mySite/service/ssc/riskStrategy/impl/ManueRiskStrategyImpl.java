@@ -2,8 +2,6 @@ package org.mySite.service.ssc.riskStrategy.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mySite.common.constant.SSCConstants;
-import org.mySite.common.util.MailUtil;
 import org.mySite.domain.ResultAnalyseModle;
 import org.mySite.domain.RiskStrategyModel;
 import org.mySite.domain.SSCOrder;
@@ -19,7 +17,7 @@ public class ManueRiskStrategyImpl implements IRiskStrategy {
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
         riskStrategyModel.setUnit(custom_min_unit);
         riskStrategyModel.setRiskRate(custom_risk_rate);
-        int price = (int)Math.round((analyseResult.getCurrentAmount() * riskStrategyModel.getRiskRate()) / (riskStrategyModel.getUnit()*4) / order.getOrderCount());
+        int price = (int)Math.round((analyseResult.getCurrentAmount() * riskStrategyModel.getRiskRate()) / (riskStrategyModel.getUnit()*4) / order.getAvailableOrderCount());
         riskStrategyModel.setPrice(price);
 //        if (analyseResult.getContinueLoseCount() >= 5 || analyseResult.getRecentWinCountOrderRate() <= 0.3) {
 //            MailUtil.sendSSCAcountMail("交易机会！当前最新统计期数为：" + analyseResult.getLastestSeason());

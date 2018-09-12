@@ -67,115 +67,15 @@ public class SSCService {
      * @return
      */
     public SSCOrder mergeOrder(SSCInfo sscInfo, boolean isInit) {
-        log.info("开始mergeOrder...");
-        SSCOrder sscOrder = new SSCOrder();
-        if (sscInfo != null && !sscInfo.isInTrading()) {
-            //最新开奖的期数
-            String lastestSeasonId = sscInfo.getLastestSeasonId();
-            //当前开放下注的订单
-            String currentOpenSeasonId = sscInfo.getCurrentOpenSeasonId();
-            //当前投注期数比最新开奖期数大1
-            if(getSeasonIdSuffix(currentOpenSeasonId) - getSeasonIdSuffix(lastestSeasonId) == 1 || isFirstSeason(currentOpenSeasonId)) {
-                //当前无订单
-                if (currentOrders.isEmpty()) {
-                    log.info("currentOrders为空");
-                    //根据当前开奖结果，填充订单每位的code
-                    fillCodeSets(sscOrder, sscInfo);
-                    //当前已经有订单，则判断当前订单是否小于允许下注的订单
-                }else {
-                    log.info("currentOrders不为空。currentOrders：" + currentOrders.toString());
-                    //判断当前订单中，是否有中奖的，如果中奖，则把code移出
-                    sscOrder = fixCurrentOrderCode(currentOrders, sscInfo.getLastestCode());
-                    //根据当前开奖结果，填充订单每位的code
-                    fillCodeSets(sscOrder, sscInfo);
-                }
-            }else {
-                log.info("正在开奖，等待开奖后再尝试下单.");
-            }
-        }else if (sscInfo.isInTrading() && !isInit){
-            log.info("有还未开奖的订单。当前订单为:" + currentOrders.toString());
+        log.info("start merge order...");
+        log.info("before merge:" + currentOrders);
+        if (!sscInfo.isInTrading()) {
+            fillCurrentOrder(currentOrders, sscInfo);
         }else if (sscInfo.isInTrading() && isInit) {
-            currentOrders = sscInfo.getCurrentOrder();
             //初始化遗漏次数 TODO
-
-            log.info("当前有未开奖的订单，且是第一次初始化。加载未开奖订单到当前订单中.初始化的订单为：" + currentOrders.toString());
         }
-        log.info("merge结果:" + sscOrder.toString());
-        return sscOrder;
-    }
-
-    /**
-     * 判断是不是每天的第一期
-     * @param currentOpenSeasonId
-     * @return
-     */
-    private boolean isFirstSeason(String currentOpenSeasonId) {
-        if (StringUtils.isNotEmpty(currentOpenSeasonId)) {
-            Integer seasonIdSuffix = getSeasonIdSuffix(currentOpenSeasonId);
-            if (seasonIdSuffix != null && seasonIdSuffix.equals(1)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 判断当前订单中，是否有中奖的，如果中奖，则把code移出
-     * @param currentOrders
-     * @param lastestCode
-     */
-    private SSCOrder fixCurrentOrderCode(SSCOrder currentOrders, String[] lastestCode) {
-        SSCOrder result = new SSCOrder();
-        if (currentOrders != null && !currentOrders.isEmpty() && lastestCode != null && lastestCode.length == 5) {
-            for (String s : currentOrders.getW()) {
-                if (!codeDic.get(s).contains(lastestCode[0])) {
-                    result.getW().add(s);
-                }
-            }
-
-            for (String s : currentOrders.getQ()) {
-                if (!codeDic.get(s).contains(lastestCode[1])) {
-                    result.getQ().add(s);
-                }
-            }
-
-            for (String s : currentOrders.getB()) {
-                if (!codeDic.get(s).contains(lastestCode[2])) {
-                    result.getB().add(s);
-                }
-            }
-
-            for (String s : currentOrders.getS()) {
-                if (!codeDic.get(s).contains(lastestCode[3])) {
-                    result.getS().add(s);
-                }
-            }
-
-            for (String s : currentOrders.getG()) {
-                if (!codeDic.get(s).contains(lastestCode[4])) {
-                    result.getG().add(s);
-                }
-            }
-
-            Set<AbsentedNode> absentedNodeSet = currentOrders.getAbsentedNodeSet();
-            Set<AbsentedNode> newAbsentedNodeSet = new HashSet<AbsentedNode>();
-            Iterator<AbsentedNode> it = absentedNodeSet.iterator();
-            while (it.hasNext()) {
-                AbsentedNode node = it.next();
-                for (int i=0; i<lastestCode.length; i++) {
-                    if (node.getPosition() == i) {
-                        if (!codeDic.get(node.getCode()).contains(lastestCode[i])) {
-                            //未中奖，遗漏加1
-                            node.setAbsent(node.getAbsent() + 1);
-                            newAbsentedNodeSet.add(node);
-                        }
-                    }
-                }
-
-            }
-            result.setAbsentedNodeSet(newAbsentedNodeSet);
-        }
-        return result;
+        log.info("after merge:" + currentOrders);
+        return currentOrders;
     }
 
     /**
@@ -183,7 +83,7 @@ public class SSCService {
      * @param order
      */
     public void submitOrders(SSCOrder order, SSCInfo sscInfo, RiskStrategyModel riskStrategyInfo) {
-        if (order != null && !order.isEmpty()) {
+        if (order != null && order.getAvailableOrderCount() > 0) {
             List<SSCOrderNode> orderNodes = new ArrayList<SSCOrderNode>();
             for (PositionEnum positionEnum : PositionEnum.values()) {
                 fillOrderNode(orderNodes, positionEnum.position() , order, riskStrategyInfo);
@@ -213,8 +113,6 @@ public class SSCService {
                 boolean success = submitOrder(sscOrderParam);
                 //如果提交订单成功，则更新当前订单信息
                 if (success) {
-                    currentOrders = order;
-                    currentOrders.setSeasonId(sscInfo.getLastestSeasonId());
                     log.info("提交订单成功！更新当前订单，更新后为:" + currentOrders.toString());
                 }
             }
@@ -273,10 +171,6 @@ public class SSCService {
             if (!node.isAvaliable()) {
                 continue;
             }
-            if (node.getAbsent() > riskStrategyInfo.getMaxAbsent()) {
-                it.remove();
-                continue;
-            }
             if (node.getPosition() == position) {
                 SSCOrderNode sscOrderNode = new SSCOrderNode();
                 sscOrderNode.setUnit(riskStrategyInfo.getUnit());
@@ -319,42 +213,28 @@ public class SSCService {
         return strategyModel;
     }
 
-    private void fillCodeSets(SSCOrder sscOrder, SSCInfo sscInfo) {
+    private void fillCurrentOrder(SSCOrder currentOrder, SSCInfo sscInfo) {
         String[] lastestCode = sscInfo.getLastestCode();
-        if (sscOrder != null && lastestCode != null && lastestCode.length == 5) {
-            if (codes.contains(lastestCode[0])) {
-                sscOrder.getW().add(lastestCode[0]);
-                sscOrder.getAbsentedNodeSet().add(new AbsentedNode(lastestCode[0], 0));
+        Set<AbsentedNode> absentedNodeSet = currentOrder.getAbsentedNodeSet();
+        Set<AbsentedNode> tempSet = new HashSet<AbsentedNode>();
+        for (int i=0; i<lastestCode.length; i++) {
+            Iterator<AbsentedNode> it = absentedNodeSet.iterator();
+            while (it.hasNext()) {
+                AbsentedNode node = it.next();
+                if (node.getPosition() == i) {
+                    if (!codeDic.get(node.getCode()).contains(lastestCode[i])) {
+                        //未中奖，遗漏加1
+                        node.setAbsent(node.getAbsent() + 1);
+                        tempSet.add(node);
+                    }
+                 }
             }
-            if (codes.contains(lastestCode[1])) {
-                sscOrder.getQ().add(lastestCode[1]);
-                sscOrder.getAbsentedNodeSet().add(new AbsentedNode(lastestCode[1], 1));
+            if (codeDic.containsKey(lastestCode[i])) {
+                tempSet.add(new AbsentedNode(lastestCode[i], i));
             }
-            if (codes.contains(lastestCode[2])) {
-                sscOrder.getB().add(lastestCode[2]);
-                sscOrder.getAbsentedNodeSet().add(new AbsentedNode(lastestCode[2], 2));
-            }
-            if (codes.contains(lastestCode[3])) {
-                sscOrder.getS().add(lastestCode[3]);
-                sscOrder.getAbsentedNodeSet().add(new AbsentedNode(lastestCode[3], 3));
-            }
-            if (codes.contains(lastestCode[4])) {
-                sscOrder.getG().add(lastestCode[4]);
-                sscOrder.getAbsentedNodeSet().add(new AbsentedNode(lastestCode[4], 4));
-            }
-            sscOrder.setSeasonId(sscInfo.getCurrentOpenSeasonId());
-        }
+       }
+        currentOrder.setAbsentedNodeSet(tempSet);
     }
-
-
-    private Integer getSeasonIdSuffix(String seasonId) {
-        if (StringUtils.isNotEmpty(seasonId)) {
-            String[] split = seasonId.split("-");
-            return Integer.parseInt(split[1]);
-        }
-        return -1;
-    }
-
     public static  void main(String[] args) {
         SSCService sscService = new SSCService();
 //        SSCInfo sscInfo = sscService.getSSCInfo();
@@ -436,17 +316,6 @@ public class SSCService {
                             Set<AbsentedNode> absentedNodeSet = currentOrder.getAbsentedNodeSet();
                             for (int i=0; i<codeArray.length; i++) {
                                 if (StringUtils.isNumeric(codeArray[i])) {
-                                    if (i == PositionEnum.W.position()) {
-                                        currentOrder.getW().add(codeDic.get(codeArray[i]));
-                                    }else if(i == PositionEnum.Q.position()) {
-                                        currentOrder.getQ().add(codeDic.get(codeArray[i]));
-                                    }else if(i == PositionEnum.B.position()) {
-                                        currentOrder.getB().add(codeDic.get(codeArray[i]));
-                                    }else if(i == PositionEnum.S.position()) {
-                                        currentOrder.getS().add(codeDic.get(codeArray[i]));
-                                    }else {
-                                        currentOrder.getG().add(codeDic.get(codeArray[i]));
-                                    }
                                     absentedNodeSet.add(new AbsentedNode(codeArray[i], i));
                                 }
                             }
@@ -593,7 +462,7 @@ public class SSCService {
                 .append("连赢").append(analyseModle.getContinueWinCount()).append("单<br>")
                 .append("连亏").append(analyseModle.getContinueLoseCount()).append("单<br>")
                 .append("未开奖").append(analyseModle.getInTradingCount()).append("单<br>");
-               // .append("当前使用的风险比例为：").append(this.getRiskStrategyInfo(sscInfo, sscInfo.getCurrentOrder().getOrderCount()).getRiskRate()).append("<br>");
+               // .append("当前使用的风险比例为：").append(this.getRiskStrategyInfo(sscInfo, sscInfo.getCurrentOrder().getAvailableOrderCount()).getRiskRate()).append("<br>");
         return contentBuf.toString();
     }
 

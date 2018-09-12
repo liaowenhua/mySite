@@ -17,6 +17,7 @@ import java.util.Set;
 public class AbsentRiskStategyImpl implements IRiskStrategy {
 
     private static Logger log = LogManager.getLogger(AbsentRiskStategyImpl.class);
+
     private static double unit = 0.002;
     //资金风险比例
     private static double risk = 0.05;
@@ -29,7 +30,7 @@ public class AbsentRiskStategyImpl implements IRiskStrategy {
         RiskStrategyModel riskStrategyModel = new RiskStrategyModel();
         riskStrategyModel.setRiskRate(risk);
         riskStrategyModel.setUnit(unit);
-        riskStrategyModel.setOrderCount(order.getOrderCount());
+        riskStrategyModel.setOrderCount(order.getAvailableOrderCount());
         riskStrategyModel.setTotalAmount(analyseResult.getCurrentAmount());
         riskStrategyModel.setMaxAbsent(maxAbsent);
         int totalWeight = 0;
@@ -45,11 +46,12 @@ public class AbsentRiskStategyImpl implements IRiskStrategy {
             if (node.getAbsent() >= minAbsent) {
                 log.info("达到最小遗漏次数.info:" + node.toString());
                 node.setAvaliable(true);
+                totalWeight = totalWeight + node.getAbsent() + 1;
             }
-            totalWeight = totalWeight + node.getAbsent() + 1;
+
         }
 
-        riskStrategyModel.setTotalWeight(totalWeight == order.getOrderCount() ? 1 : totalWeight);
+        riskStrategyModel.setTotalWeight(totalWeight == order.getAvailableOrderCount() ? 1 : totalWeight);
         return riskStrategyModel;
     }
 }

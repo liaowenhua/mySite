@@ -2,7 +2,6 @@ package com.lwh.mySite.web;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mySite.common.constant.SSCConstants;
 import org.mySite.domain.RiskStrategyModel;
 import org.mySite.domain.SSCInfo;
 import org.mySite.domain.SSCOrder;
@@ -21,7 +20,7 @@ public class QuickCopyCurrentOrderClient {
         SSCService sscService = new SSCService();
         SSCInfo sscInfo = sscService.getSSCInfo();
         SSCOrder copyedOrder = sscInfo.getCurrentOrder();
-        RiskStrategyModel strategyModel = FixedRiskStrategyImpl.getStrategyModel(fixed_min_unit, fixed_risk_rate, sscInfo.getAmount(), sscInfo.getCurrentOrder().getOrderCount());
+        RiskStrategyModel strategyModel = FixedRiskStrategyImpl.getStrategyModel(fixed_min_unit, fixed_risk_rate, sscInfo.getAmount(), sscInfo.getCurrentOrder().getAvailableOrderCount());
         if (strategyModel == null) {
             log.info("复制当前订单发生错误，请检查当前是否有订单，或者参数是否设置正确！");
             return;

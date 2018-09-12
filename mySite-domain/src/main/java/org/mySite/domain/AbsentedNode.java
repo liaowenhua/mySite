@@ -19,6 +19,7 @@ public class AbsentedNode {
     public AbsentedNode(String code,  int position) {
         this.code = code;
         this.position = position;
+        this.avaliable = false;
     }
 
     public String getCode() {
@@ -62,6 +63,6 @@ public class AbsentedNode {
 
     @Override
     public String toString() {
-        return "position:" + position + "&code:" + code + "&absent:" + absent;
+        return "position:" + position + "#code:" + code + "#absent:" + absent;
     }
 }

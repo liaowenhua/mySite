@@ -1,20 +1,11 @@
 package org.mySite.domain;
 
-import org.mySite.common.constant.PositionEnum;
-
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class SSCOrder {
     private String orderId;
     private String seasonId;//当前订单的期数
-    private Set<String> w = new HashSet<String>();//万位
-    private Set<String> q = new HashSet<String>();//千位
-    private Set<String> b = new HashSet<String>();//百位
-    private Set<String> s = new HashSet<String>();//十位
-    private Set<String> g = new HashSet<String>();//个位
-
     private Set<AbsentedNode> absentedNodeSet = new HashSet<AbsentedNode>();
 
     public Set<AbsentedNode> getAbsentedNodeSet() {
@@ -30,31 +21,19 @@ public class SSCOrder {
     }
 
     public boolean isEmpty() {
-        return (w.isEmpty() && q.isEmpty() && b.isEmpty() && s.isEmpty() && g.isEmpty()) || absentedNodeSet.size() == 0;
+        return absentedNodeSet.isEmpty();
     }
 
-    public Set<String> getCodeSetPosition(int position) {
-        if (position == PositionEnum.W.position()) {
-            return w;
-        }else if (position == PositionEnum.Q.position()) {
-            return q;
-        }else if (position == PositionEnum.B.position()) {
-            return b;
-        }else if (position == PositionEnum.S.position()) {
-            return s;
-        }else if (position == PositionEnum.G.position()) {
-            return g;
+    public int getAvailableOrderCount() {
+        int orderCount = 0;
+        for (AbsentedNode node : absentedNodeSet) {
+            if (node.isAvaliable()) orderCount = orderCount + 1;
         }
-        return null;
-    }
-
-    public int getOrderCount() {
-        return absentedNodeSet.size();
+        return orderCount;
     }
     @Override
     public String toString() {
-        return "seasonId:" + seasonId + "," + w.toString() + "-" + q.toString() + "-"  + b.toString() + "-"  + s.toString() + "-"  + g.toString()
-                + "absentedNodeSet:" + absentedNodeSet.toString();
+        return absentedNodeSet.toString();
     }
 
     public String getOrderId() {
@@ -73,43 +52,4 @@ public class SSCOrder {
         this.seasonId = seasonId;
     }
 
-    public Set<String> getW() {
-        return w;
-    }
-
-    public void setW(Set<String> w) {
-        this.w = w;
-    }
-
-    public Set<String> getQ() {
-        return q;
-    }
-
-    public void setQ(Set<String> q) {
-        this.q = q;
-    }
-
-    public Set<String> getB() {
-        return b;
-    }
-
-    public void setB(Set<String> b) {
-        this.b = b;
-    }
-
-    public Set<String> getS() {
-        return s;
-    }
-
-    public void setS(Set<String> s) {
-        this.s = s;
-    }
-
-    public Set<String> getG() {
-        return g;
-    }
-
-    public void setG(Set<String> g) {
-        this.g = g;
-    }
 }

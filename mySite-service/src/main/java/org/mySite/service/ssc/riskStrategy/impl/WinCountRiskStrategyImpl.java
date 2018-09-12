@@ -28,7 +28,7 @@ public class WinCountRiskStrategyImpl implements IRiskStrategy {
             }
         }
         riskStrategyModel.setRiskRate(riskRate);
-        int price = (int)Math.round((analyseResult.getCurrentAmount() * riskRate) / (riskStrategyModel.getUnit()*4) / order.getOrderCount());//4表示没注买4个号;
+        int price = (int)Math.round((analyseResult.getCurrentAmount() * riskRate) / (riskStrategyModel.getUnit()*4) / order.getAvailableOrderCount());//4表示没注买4个号;
         riskStrategyModel.setPrice(price);
         return riskStrategyModel;
     }
