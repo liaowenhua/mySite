@@ -21,7 +21,7 @@ public class AbsentRiskStategyImpl implements IRiskStrategy {
     //资金风险比例
     private static double risk = 0.05;
 
-    private static int maxAbsent = 4;
+    private static int maxAbsent = 7;
 
     private static int minAbsent = 3;
     @Override
