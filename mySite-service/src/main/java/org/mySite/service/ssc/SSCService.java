@@ -175,7 +175,7 @@ public class SSCService {
                 SSCOrderNode sscOrderNode = new SSCOrderNode();
                 sscOrderNode.setUnit(riskStrategyInfo.getUnit());
                 fillContent(position, node.getCode(), sscOrderNode);
-                sscOrderNode.setPrice(riskStrategyInfo.getPriceWithWeight(node.getAbsent() + 1));
+                sscOrderNode.setPrice(riskStrategyInfo.getPriceWithAbsent(node.getAbsent()));
                 orderNodes.add(sscOrderNode);
             }
         }

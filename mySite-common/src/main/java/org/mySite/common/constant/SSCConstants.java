@@ -3,7 +3,7 @@ package org.mySite.common.constant;
 public interface SSCConstants {
     //账户信息
     String user = "liaowenhua22";
-    String jsessionId = "C07D3A8550CF3D2FD6ED8D7B8CE2F55A3C784B90";
+    String jsessionId = "7FE49BEE31052B5BFA87D385D1638AE8DCBD6827C739";
     String swtichOpen = "n621";
 
     //监控邮件相关信息
@@ -42,4 +42,8 @@ public interface SSCConstants {
         double risk_normal = 0.05;
         double risk_up = 0.05;
     }
+
+    int maxAbsent = 11;
+
+    int minAbsent = 8;
 }
