@@ -1,5 +1,7 @@
 package org.mySite.domain;
 
+import com.alibaba.fastjson.JSONArray;
+
 import java.util.Arrays;
 
 public class SSCInfo {
@@ -9,6 +11,15 @@ public class SSCInfo {
     private String[] lastestCode;//最近一期开奖结果
     private boolean inTrading;//是否有还未开奖的订单
     private SSCOrder currentOrder = new SSCOrder();//当前未开奖的订单
+    private JSONArray opensArray;//近期开奖结果
+
+    public JSONArray getOpensArray() {
+        return opensArray;
+    }
+
+    public void setOpensArray(JSONArray opensArray) {
+        this.opensArray = opensArray;
+    }
 
     public SSCOrder getCurrentOrder() {
         return currentOrder;

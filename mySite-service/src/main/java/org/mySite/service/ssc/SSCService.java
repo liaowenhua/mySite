@@ -1,5 +1,6 @@
 package org.mySite.service.ssc;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +54,10 @@ public class SSCService {
     private static String base_url_ssc_info = "https://web.4jc9.com/lotts/cqssc/info?_=";
     private static String base_url_submit_order = "https://web.4jc9.com/lotts/cqssc/bet?";
 
+    public static SSCOrder getCurrentOrders() {
+        return currentOrders;
+    }
+
     public SSCInfo getSSCInfo() {
         SSCInfo sscInfo = new SSCInfo();
         String resultJson = sendHttpRequestForInfo();
@@ -63,16 +68,13 @@ public class SSCService {
     /**
      *
      * @param sscInfo
-     * @param isInit 是否是程序初始化第一次调用
      * @return
      */
-    public SSCOrder mergeOrder(SSCInfo sscInfo, boolean isInit) {
+    public SSCOrder mergeOrder(SSCInfo sscInfo) {
         log.info("start merge order...");
         log.info("before merge:" + currentOrders);
         if (!sscInfo.isInTrading()) {
             fillCurrentOrder(currentOrders, sscInfo);
-        }else if (sscInfo.isInTrading() && isInit) {
-            //初始化遗漏次数 TODO
         }
         log.info("after merge:" + currentOrders);
         return currentOrders;
@@ -324,6 +326,8 @@ public class SSCService {
                         break;
                     }
                 }
+                //最近开奖结果
+                sscInfo.setOpensArray( contentJson.getJSONArray("opens"));
             }
         }
     }
@@ -479,4 +483,19 @@ public class SSCService {
         SSCService.lastestSeasonId = lastestSeasonId;
     }
 
+    public SSCOrder initOrder(SSCInfo sscInfo) {
+        JSONArray opensArray = sscInfo.getOpensArray();
+        if (opensArray != null && opensArray.size() > 0) {
+            for(int j=opensArray.size() - 1; j>=0; j--) {
+                JSONObject openJson = JSONObject.parseObject(JSON.toJSONString(opensArray.get(j)));
+                JSONArray nums = openJson.getJSONArray("nums");
+                log.info("nums:" + nums.toString());
+                for (int i=0; i<nums.size(); i++) {
+                    currentOrders.addOrderNode(i, nums.get(i).toString());
+                }
+            }
+        }
+        log.info("initOrder:" + currentOrders);
+        return currentOrders;
+    }
 }

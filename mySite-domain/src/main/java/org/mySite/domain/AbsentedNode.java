@@ -1,5 +1,7 @@
 package org.mySite.domain;
 
+import org.mySite.common.constant.PositionEnum;
+
 public class AbsentedNode {
     private String code;
     private int absent = 0;
@@ -63,6 +65,6 @@ public class AbsentedNode {
 
     @Override
     public String toString() {
-        return "position:" + position + "#code:" + code + "#absent:" + absent;
+        return "available:" + avaliable + "#position:" + PositionEnum.dec(position) + "位" + "#code:" + code + "#遗漏:" + absent ;
     }
 }

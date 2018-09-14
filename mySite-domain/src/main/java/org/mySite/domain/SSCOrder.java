@@ -1,6 +1,11 @@
 package org.mySite.domain;
 
+import org.apache.commons.lang3.StringUtils;
+import org.mySite.common.constant.CodeDic;
+import org.mySite.common.constant.SSCConstants;
+
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class SSCOrder {
@@ -30,6 +35,25 @@ public class SSCOrder {
             if (node.isAvaliable()) orderCount = orderCount + 1;
         }
         return orderCount;
+    }
+
+    public void addOrderNode(int position, String code) {
+        AbsentedNode orderNode = new AbsentedNode(code, position);
+        Iterator<AbsentedNode> it = absentedNodeSet.iterator();
+        boolean positionHadNode = false;
+        while (it.hasNext()) {
+            AbsentedNode node = it.next();
+            if (node.getPosition() == position) {
+                positionHadNode = true;
+                if (CodeDic.searchDic(node.getCode()).contains(code)) {
+                    it.remove();
+                }else {
+                    node.setAbsent(node.getAbsent() + 1);
+                }
+            }
+        }
+        if (!positionHadNode && StringUtils.isNotEmpty(CodeDic.searchDic(code))) absentedNodeSet.add(orderNode);
+
     }
     @Override
     public String toString() {

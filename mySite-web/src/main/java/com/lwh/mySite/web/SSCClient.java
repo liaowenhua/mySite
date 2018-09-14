@@ -21,6 +21,7 @@ public class SSCClient {
          boolean isInit = true;
         String lastestCheckedSeasonId = "";//最近一次检查的期数
         while (true) {
+            log.info("current order:" + SSCService.getCurrentOrders());
             SSCService sscService = new SSCService();
             SSCInfo sscInfo = sscService.getSSCInfo();
             //最新开奖的期数
@@ -36,7 +37,12 @@ public class SSCClient {
                     continue;
                 }else {
                     lastestCheckedSeasonId = lastestSeasonId;
-                    SSCOrder sscOrder = sscService.mergeOrder(sscInfo, isInit);
+                    SSCOrder sscOrder;
+                    if (isInit) {
+                        sscOrder = sscService.initOrder(sscInfo);
+                    }else {
+                        sscOrder = sscService.mergeOrder(sscInfo);
+                    }
                     String report = sscService.genAnalyseReport(sscInfo);
                     log.info("分析报告：" + report.replace("\\<br\\>", ";"));
                     RiskStrategyModel riskStrategyInfo = sscService.getRiskStrategyInfo(sscInfo, sscOrder);
