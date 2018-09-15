@@ -41,18 +41,26 @@ public class SSCOrder {
         AbsentedNode orderNode = new AbsentedNode(code, position);
         Iterator<AbsentedNode> it = absentedNodeSet.iterator();
         boolean positionHadNode = false;
+        Set<AbsentedNode> temp = new HashSet<AbsentedNode>();
         while (it.hasNext()) {
             AbsentedNode node = it.next();
             if (node.getPosition() == position) {
                 positionHadNode = true;
                 if (CodeDic.searchDic(node.getCode()).contains(code)) {
                     it.remove();
+                    if (StringUtils.isNotEmpty(CodeDic.searchDic(code))) {
+                        temp.add(orderNode);
+                    }
                 }else {
                     node.setAbsent(node.getAbsent() + 1);
                 }
             }
         }
-        if (!positionHadNode && StringUtils.isNotEmpty(CodeDic.searchDic(code))) absentedNodeSet.add(orderNode);
+        if (!positionHadNode && StringUtils.isNotEmpty(CodeDic.searchDic(code))) {
+            absentedNodeSet.add(orderNode);
+        }
+
+        absentedNodeSet.addAll(temp);
 
     }
     @Override
