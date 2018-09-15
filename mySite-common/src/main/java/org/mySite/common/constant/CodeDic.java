@@ -19,6 +19,26 @@ public class CodeDic {
         dic.put(SSCConstants.code_map_9,"9");
     }
 
+    private static Map<Integer, Double> profileMap = new HashMap<Integer, Double>();
+    static {
+        profileMap.put(11, 11.52);
+        profileMap.put(12, 15.04);
+        profileMap.put(13, 33.6);
+        profileMap.put(14, 62.72);
+        profileMap.put(15, 20.8);
+        profileMap.put(16, 27.52);
+        profileMap.put(17, 49.92);
+        profileMap.put(18, 85.12);
+        profileMap.put(19, -1496.00);
+    }
+
+    public static double getProfile(int absent) {
+        if (profileMap.containsKey(absent)) {
+            return profileMap.get(absent);
+        }
+        return 0;
+    }
+
     public static String searchDic(String request) {
         if (StringUtils.isNotEmpty(request)) {
             return dic.get(request);

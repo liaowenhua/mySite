@@ -12,6 +12,15 @@ public class SSCOrder {
     private String orderId;
     private String seasonId;//当前订单的期数
     private Set<AbsentedNode> absentedNodeSet = new HashSet<AbsentedNode>();
+    private static Recorder recorder = new Recorder();
+
+    public Recorder getRecorder() {
+        return recorder;
+    }
+
+    public void setRecorder(Recorder recorder) {
+        SSCOrder.recorder = recorder;
+    }
 
     public Set<AbsentedNode> getAbsentedNodeSet() {
         return absentedNodeSet;
@@ -46,7 +55,9 @@ public class SSCOrder {
             AbsentedNode node = it.next();
             if (node.getPosition() == position) {
                 positionHadNode = true;
+                //中奖
                 if (CodeDic.searchDic(node.getCode()).contains(code)) {
+                    recorder.add(node.getAbsent());
                     it.remove();
                     if (StringUtils.isNotEmpty(CodeDic.searchDic(code))) {
                         temp.add(orderNode);

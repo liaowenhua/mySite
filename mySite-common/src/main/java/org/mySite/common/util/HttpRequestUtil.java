@@ -46,9 +46,6 @@ public class HttpRequestUtil {
 
             httpGet.addHeader("Content-type", "application/json; charset=utf-8");
             httpGet.setHeader("Accept", "application/json");
-           // httpGet.setHeader("Referer", "https://web.4jc9.com/lotts/cqssc/index?numMode=0");
-            //httpGet.setHeader("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Mobile Safari/537.36");
-           // httpGet.setHeader("Host", "web.4jc9.com");
             if (cookie != null) {
                 httpGet.setHeader("Cookie", cookie.toString());
             }
