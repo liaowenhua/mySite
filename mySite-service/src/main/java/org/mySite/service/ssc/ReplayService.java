@@ -51,7 +51,7 @@ public class ReplayService {
     public List<String> getResultOfDate(String date, Cookie cookie, RequestHeader header){
         log.info("request date:" + date);
         List<String> result = new ArrayList<String>();
-        InputStream is = getResultIsFromUrl(date, cookie, header);
+        InputStream is = getResultFromFile(date);
         Document document = parseDocument(is);
         if (document == null) return result;
         Element root = document.getDocumentElement();
@@ -114,6 +114,7 @@ public class ReplayService {
             log.info("write " + fileName);
             File file = new File(SSCConstants.HISTORY_BASE_PATH + fileName);
             if (file != null && file.exists()) {
+                log.info(fileName + "exist!");
                 startCalendar.add(Calendar.DAY_OF_MONTH, 1);
                 continue;
             }
@@ -158,8 +159,17 @@ public class ReplayService {
 
     private InputStream getResultFromFile(String date) {
         String path = SSCConstants.HISTORY_BASE_PATH + date;
-
-        return null;
+        File file = new File(path);
+        if (!file.exists()) {
+            return null;
+        }
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(path);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return in;
     }
 
     public void replay(SSCOrder sscOrder, List<String> data) {
