@@ -1,6 +1,5 @@
 package com.lwh.mySite.web;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mySite.common.constant.SSCConstants;
@@ -21,6 +20,7 @@ public class SSCClient {
          boolean isInit = true;
         String lastestCheckedSeasonId = "";//最近一次检查的期数
         while (true) {
+
             log.info("current order:" + SSCService.getCurrentOrders());
             SSCService sscService = new SSCService();
             SSCInfo sscInfo = sscService.getSSCInfo();
@@ -30,10 +30,10 @@ public class SSCClient {
             String currentOpenSeasonId = sscInfo.getCurrentOpenSeasonId();
 
             //当前投注期数比最新开奖期数大1
-            if(SeasonIdUtils.isBiggerThanOne(currentOpenSeasonId, lastestSeasonId )) {
+            if(SeasonIdUtils.isBiggerThanOne(currentOpenSeasonId, lastestSeasonId ) && !sscInfo.isInTrading()) {
                 if (lastestCheckedSeasonId.equals(lastestSeasonId)) {
                     log.info("还未更新，进入休眠...");
-                    Thread.sleep(SSCConstants.interval_mill_second);
+                    Thread.currentThread().sleep(SSCConstants.interval_mill_second);
                     continue;
                 }else {
                     lastestCheckedSeasonId = lastestSeasonId;
@@ -49,9 +49,13 @@ public class SSCClient {
                     sscService.submitOrders(sscOrder, sscInfo, riskStrategyInfo);
                     isInit = false;
                 }
-            }else {
+            }else if(!SeasonIdUtils.isBiggerThanOne(currentOpenSeasonId, lastestSeasonId )){
                 log.info("正在开奖,进入休眠....");
-                Thread.sleep(SSCConstants.interval_mill_second);
+                Thread.currentThread().sleep(SSCConstants.interval_mill_second);
+                continue;
+            }else {
+                log.info("有未开奖订单....");
+                Thread.currentThread().sleep(SSCConstants.interval_mill_second);
                 continue;
             }
         }

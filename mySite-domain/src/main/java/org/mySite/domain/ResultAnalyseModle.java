@@ -1,6 +1,7 @@
 package org.mySite.domain;
 
 import com.alibaba.fastjson.JSONObject;
+import org.mySite.common.constant.CodeDic;
 import org.mySite.common.constant.SSCConstants;
 
 import java.util.Date;
@@ -30,10 +31,10 @@ public class ResultAnalyseModle {
 
 
     public ResultAnalyseModle() {
-        detailResult.put(SSCConstants.code_map_0, new Node());
-        detailResult.put(SSCConstants.code_map_2,new Node());
-        detailResult.put(SSCConstants.code_map_5,new Node());
-        detailResult.put(SSCConstants.code_map_9,new Node());
+        detailResult.put(CodeDic.code_map_0, new Node());
+        detailResult.put(CodeDic.code_map_2,new Node());
+        detailResult.put(CodeDic.code_map_5,new Node());
+        detailResult.put(CodeDic.code_map_9,new Node());
     }
 
     public class Node {

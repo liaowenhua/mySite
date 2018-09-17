@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mySite.common.bean.SSCCookie;
+import org.mySite.common.constant.CodeDic;
 import org.mySite.common.constant.PositionEnum;
 import org.mySite.common.constant.SSCConstants;
 import org.mySite.common.constant.SSCConstants.AutoStrategyConstant;
@@ -29,24 +30,6 @@ public class SSCService {
         sscCookie = new SSCCookie(SSCConstants.user, SSCConstants.jsessionId, SSCConstants.swtichOpen);
     }
 
-    private static Set<String> codes = new HashSet<String>();
-    private static Map<String,String> codeDic = new HashMap<String,String>();
-    static {
-        codes.add("0");
-        codes.add("2");
-        codes.add("5");
-        codes.add("9");
-        codeDic.put("0",SSCConstants.code_map_0);
-        codeDic.put("2",SSCConstants.code_map_2);
-        codeDic.put("5",SSCConstants.code_map_5);
-        codeDic.put("9",SSCConstants.code_map_9);
-
-        codeDic.put(SSCConstants.code_map_0,"0");
-        codeDic.put(SSCConstants.code_map_2,"2");
-        codeDic.put(SSCConstants.code_map_5,"5");
-        codeDic.put(SSCConstants.code_map_9,"9");
-
-    }
     private static String lastestSeasonId = "0";
     private static SSCOrder currentOrders = new SSCOrder();
 
@@ -184,7 +167,7 @@ public class SSCService {
     }
 
     private void fillContent(int position, String code, SSCOrderNode sscOrderNode) {
-        String content = codeDic.get(code);
+        String content = CodeDic.dic.get(code);
         String[] codeArray = new String[]{"-","-","-","-","-"};
         if (position >= 0 && position <= 4 && content != null) {
             codeArray[position] = content;
@@ -224,14 +207,14 @@ public class SSCService {
             while (it.hasNext()) {
                 AbsentedNode node = it.next();
                 if (node.getPosition() == i) {
-                    if (!codeDic.get(node.getCode()).contains(lastestCode[i])) {
+                    if (!CodeDic.dic.get(node.getCode()).contains(lastestCode[i])) {
                         //未中奖，遗漏加1
                         node.setAbsent(node.getAbsent() + 1);
                         tempSet.add(node);
                     }
                  }
             }
-            if (codeDic.containsKey(lastestCode[i])) {
+            if (CodeDic.dic.containsKey(lastestCode[i])) {
                 tempSet.add(new AbsentedNode(lastestCode[i], i));
             }
        }

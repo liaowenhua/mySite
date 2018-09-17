@@ -1,11 +1,14 @@
 package org.mySite.domain;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mySite.common.constant.CodeDic;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Recorder {
+    private static Logger log = LogManager.getLogger(Recorder.class);
     private Map<Integer, Integer> absentedMap = new HashMap<Integer, Integer>();
 
     public void add(Integer i) {
@@ -20,7 +23,12 @@ public class Recorder {
         double totalProfile = 0.0;
         for (Integer i : absentedMap.keySet()) {
             int absent = absentedMap.get(i);
-            totalProfile += CodeDic.getProfile(i) * absent;
+            double profile = CodeDic.getProfile(i);
+
+            totalProfile += profile * absent;
+            if (profile < 0) {
+                log.info("lost!current profile is " + totalProfile);
+            }
         }
         return totalProfile;
     }

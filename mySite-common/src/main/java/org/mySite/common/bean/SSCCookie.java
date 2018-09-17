@@ -1,6 +1,6 @@
 package org.mySite.common.bean;
 
-public class SSCCookie {
+public class SSCCookie implements Cookie{
     private String JSESSIONID;
     private String guide1;
     private String openSwitching;

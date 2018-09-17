@@ -11,6 +11,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.entity.StringEntity;
+import org.mySite.common.bean.Cookie;
+import org.mySite.common.bean.RequestHeader;
 import org.mySite.common.bean.SSCCookie;
 
 import java.io.BufferedReader;
@@ -34,7 +36,12 @@ public class HttpRequestUtil {
         httpClient = HttpClients.custom().setConnectionManager(cm).build();
     }
 
-    public static String get(String url, SSCCookie cookie) {
+    public static String get(String url) {
+        return get(url, null, null);
+    }
+
+    public static String get(String url, Cookie cookie, RequestHeader header) {
+
         CloseableHttpResponse response = null;
         BufferedReader in = null;
         String result = "";
@@ -46,6 +53,17 @@ public class HttpRequestUtil {
 
             httpGet.addHeader("Content-type", "application/json; charset=utf-8");
             httpGet.setHeader("Accept", "application/json");
+            if (header != null) {
+                if (header.getHost() != null) {
+                    httpGet.setHeader("Host", header.getHost());
+                }
+                if (header.getReferer() != null) {
+                    httpGet.setHeader("Referer", header.getReferer());
+                }
+                if (header.getUserAgent() != null) {
+                    httpGet.setHeader("User-Agent", header.getUserAgent());
+                }
+            }
             if (cookie != null) {
                 httpGet.setHeader("Cookie", cookie.toString());
             }
@@ -71,6 +89,11 @@ public class HttpRequestUtil {
             }
         }
         return result;
+
+    }
+
+    public static String get(String url, SSCCookie cookie) {
+        return get(url, cookie, null);
     }
 
     public static String post(String url, String jsonString, SSCCookie cookie) {

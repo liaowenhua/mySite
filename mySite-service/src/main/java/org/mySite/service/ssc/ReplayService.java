@@ -2,6 +2,8 @@ package org.mySite.service.ssc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mySite.common.bean.Cookie;
+import org.mySite.common.bean.RequestHeader;
 import org.mySite.common.util.HttpRequestUtil;
 import org.mySite.domain.SSCOrder;
 import org.w3c.dom.Document;
@@ -30,7 +32,7 @@ public class ReplayService {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
 
-    public List<String> getResultOfDates(int from, int to) throws Exception  {
+    public List<String> getResultOfDates(int from, int to, Cookie cookie, RequestHeader header) throws Exception  {
         List<String> result = new ArrayList<String>();
         Date fromDate = sdf.parse(from + "");
         Date toDate = sdf.parse(to + "");
@@ -38,16 +40,17 @@ public class ReplayService {
         startCalendar.setTime(fromDate);
         Calendar toCalendar = Calendar.getInstance();
         toCalendar.setTime(toDate);
-        while (startCalendar.after(toCalendar) || startCalendar.equals(toCalendar)) {
+        while (startCalendar.before(toCalendar) || startCalendar.equals(toCalendar)) {
             String date = sdf.format(startCalendar.getTime());
-            List<String> dataList = getResultOfDate(date);
+            List<String> dataList = getResultOfDate(date, cookie, header);
             result.addAll(dataList);
-            startCalendar.add(Calendar.DAY_OF_MONTH, -1);
+            startCalendar.add(Calendar.DAY_OF_MONTH, 1);
+            Thread.sleep(200);
         }
         return result;
     }
 
-    public List<String> getResultOfDate(String date){
+    public List<String> getResultOfDate(String date, Cookie cookie, RequestHeader header){
         log.info("request date:" + date);
         String url = historyResultUrl.replace("$$", date) + "?t=" + new Date().getTime();
         String resultStr = HttpRequestUtil.get(url, null);

@@ -3,8 +3,8 @@ package org.mySite.common.constant;
 public interface SSCConstants {
     //账户信息
     String user = "liaowenhua22";
-    String jsessionId = "6AC803377F817830C271B0C73EB062105E2BE53D8E91";
-    String swtichOpen = "n621";
+    String jsessionId = "8AA9808BDAF88F62068E869B8A7DF1B95BCC6205F250";
+    String swtichOpen = "n579";
 
     //监控邮件相关信息
     String mail_host = "smtp.163.com";
@@ -19,12 +19,6 @@ public interface SSCConstants {
     long interval_mill_second = 30000;//60*1000*1 1分钟
     //账户监控邮件间隔，单位毫秒
     long monitor_interval_mill_second = 60*1000*10;
-
-    //对应规则
-    String code_map_0 = "0369";
-    String code_map_2 = "0578";
-    String code_map_5 = "3467";
-    String code_map_9 = "0378";
 
     /**
      * 资金管理自动调节相关参数
@@ -43,7 +37,4 @@ public interface SSCConstants {
         double risk_up = 0.05;
     }
 
-    int maxAbsent = 13;
-
-    int minAbsent = 10;
 }

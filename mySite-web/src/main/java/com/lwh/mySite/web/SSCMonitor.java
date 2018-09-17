@@ -9,12 +9,19 @@ import org.mySite.domain.ResultAnalyseModle;
 import org.mySite.domain.SSCInfo;
 import org.mySite.service.ssc.SSCService;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class SSCMonitor {
 
     private static Logger log = LogManager.getLogger(SSCMonitor.class);
     public static void main( String[] args ) throws InterruptedException {
 
         while (true) {
+//            Date date = new Date();
+//            Calendar instance = Calendar.getInstance();
+//            instance.setTime(date);
+//            instance.get
             log.info("开始执行监控任务...");
             SSCService sscServiceNew = new SSCService();
             SSCInfo sscInfoNew = sscServiceNew.getSSCInfo();

@@ -1,5 +1,6 @@
 package org.mySite.domain;
 
+import org.mySite.common.constant.CodeDic;
 import org.mySite.common.constant.SSCConstants;
 
 import java.util.HashMap;
@@ -27,14 +28,6 @@ public class RiskStrategyModel {
     //最大遗漏，当大于最大遗留数后，不提交订单
     private int maxAbsent;
 
-
-    public static Map<Integer, Integer> priceMap = new HashMap<Integer, Integer>();
-    static {
-        priceMap.put(0, 1);
-        priceMap.put(1, 3);
-        priceMap.put(2, 8);
-        priceMap.put(3, 15);
-    }
 
     public int getMaxAbsent() {
         return maxAbsent;
@@ -64,15 +57,15 @@ public class RiskStrategyModel {
     }
 
     public int getPriceWithAbsent(int absent) {
-        int i = absent - SSCConstants.minAbsent;
+        int i = absent;
         if (i >= 0) {
-            return ((int)Math.round((totalAmount * riskRate) / (unit*4))) * priceMap.get(i);
+            return CodeDic.priceMap.get(i);
         }
         return 1;
     }
 
     public static void main(String[] args){
-        System.out.println(((int)Math.round((100 * 0.01) / (0.002*4))) * priceMap.get(1));
+        System.out.println(((int)Math.round((100 * 0.01) / (0.002*4))) * CodeDic.priceMap.get(1));
     }
 
     public int getOrderCount() {
