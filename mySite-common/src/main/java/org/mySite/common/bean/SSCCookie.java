@@ -4,12 +4,22 @@ public class SSCCookie implements Cookie{
     private String JSESSIONID;
     private String guide1;
     private String openSwitching;
+    private String __cfduid;
+
+    public String get__cfduid() {
+        return __cfduid;
+    }
+
+    public void set__cfduid(String __cfduid) {
+        this.__cfduid = __cfduid;
+    }
 
     public SSCCookie(){}
-    public SSCCookie(String user, String jsessionId, String swtichOpen){
+    public SSCCookie(String user, String jsessionId, String swtichOpen, String cfdUid){
         this.JSESSIONID = jsessionId;
         this.guide1 = user;
-        this.openSwitching = openSwitching;
+        this.openSwitching = swtichOpen;
+        this.__cfduid = cfdUid;
     }
 
     public String getJSESSIONID() {

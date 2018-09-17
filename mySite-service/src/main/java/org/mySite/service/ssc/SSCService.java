@@ -27,7 +27,7 @@ public class SSCService {
     private SSCCookie sscCookie;
 
     public SSCService() {
-        sscCookie = new SSCCookie(SSCConstants.user, SSCConstants.jsessionId, SSCConstants.swtichOpen);
+        sscCookie = new SSCCookie(SSCConstants.user, SSCConstants.jsessionId, SSCConstants.swtichOpen, SSCConstants.__cfduid);
     }
 
     private static String lastestSeasonId = "0";

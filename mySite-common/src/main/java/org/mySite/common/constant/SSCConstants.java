@@ -3,8 +3,12 @@ package org.mySite.common.constant;
 public interface SSCConstants {
     //账户信息
     String user = "liaowenhua22";
-    String jsessionId = "8AA9808BDAF88F62068E869B8A7DF1B95BCC6205F250";
+    String jsessionId = "9858725B83224DFACF7A589D712154AC133413B6";
     String swtichOpen = "n579";
+    String __cfduid = "df0f6909631ea1875e778f20a6f5be8641536549397";
+
+    //回测数据相关信息
+    String HISTORY_BASE_PATH = "E:\\ssc/";
 
     //监控邮件相关信息
     String mail_host = "smtp.163.com";

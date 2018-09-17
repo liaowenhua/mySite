@@ -16,14 +16,14 @@ public class CodeDic {
 //    private static int n7 = 19;
 //    public static int max = 20;
 
-    public static int min = 10;
-    private static int n2 = 11;
-    private static int n3 = 12;
-    private static int n4 = 13;
-    private static int n5 = 14;
-    private static int n6 = 15;
-    private static int n7 = 16;
-    public static int max = 17;
+    public static int min = 6;
+    private static int n2 = 7;
+    private static int n3 = 8;
+    private static int n4 = 9;
+    private static int n5 = 10;
+    private static int n6 = 11;
+    private static int n7 = 12;
+    public static int max = 13;
     public static double maxLost = -1448.00;
 
     //对应规则
