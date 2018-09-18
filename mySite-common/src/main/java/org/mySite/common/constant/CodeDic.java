@@ -16,20 +16,29 @@ public class CodeDic {
 //    private static int n7 = 19;
 //    public static int max = 20;
 
-    public static int min = 6;
-    private static int n2 = 7;
-    private static int n3 = 8;
-    private static int n4 = 9;
-    private static int n5 = 10;
-    private static int n6 = 11;
-    private static int n7 = 12;
-    public static int max = 13;
+//    public static int min = 6;
+//    private static int n2 = 7;
+//    private static int n3 = 8;
+//    private static int n4 = 9;
+//    private static int n5 = 10;
+//    private static int n6 = 11;
+//    private static int n7 = 12;
+//    public static int max = 13;
+
+    public static int min = 8;
+    private static int n2 = 9;
+    private static int n3 = 10;
+    private static int n4 = 11;
+    private static int n5 = 12;
+    private static int n6 = 13;
+    private static int n7 = 14;
+    public static int max = 15;
     public static double maxLost = -1448.00;
 
     //对应规则
-    public static final String code_map_0 = "0369";
+    public static final String code_map_0 = "0145";
     public static final String code_map_2 = "0578";
-    public static final String code_map_5 = "3467";
+    public static final String code_map_5 = "2468";
     public static final String code_map_9 = "0378";
     static {
         dic.put("0",code_map_0);

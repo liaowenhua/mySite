@@ -16,7 +16,7 @@ public class ReplayClient extends BaseClient{
         ReplayService replayService = new ReplayService();
         ReplayCookie cookie = buildCookie();
         RequestHeader header = builderHeader();
-        List<String> dataList = replayService.getResultOfDates(20180101, 20180917, null, header);
+        List<String> dataList = replayService.getResultOfDates(20180916, 20180916, null, header);
         SSCOrder sscOrder = new SSCOrder();
         replayService.replay(sscOrder, dataList);
         Recorder recorder = sscOrder.getRecorder();

@@ -43,7 +43,6 @@ public class ReplayService {
             List<String> dataList = getResultOfDate(date, cookie, header);
             result.addAll(dataList);
             startCalendar.add(Calendar.DAY_OF_MONTH, 1);
-            Thread.sleep(200);
         }
         return result;
     }
