@@ -1,7 +1,10 @@
 package org.mySite.domain;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mySite.common.constant.CodeDic;
+import org.mySite.common.constant.PositionEnum;
 import org.mySite.common.constant.SSCConstants;
 
 import java.util.HashSet;
@@ -9,6 +12,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class SSCOrder {
+    private static Logger log = LogManager.getLogger(SSCOrder.class);
     private String orderId;
     private String seasonId;//当前订单的期数
     private Set<AbsentedNode> absentedNodeSet = new HashSet<AbsentedNode>();
@@ -46,7 +50,7 @@ public class SSCOrder {
         return orderCount;
     }
 
-    public void addOrderNode(int position, String code) {
+    public void addOrderNode(int position, String code, String seasonId) {
         AbsentedNode orderNode = new AbsentedNode(code, position);
         Iterator<AbsentedNode> it = absentedNodeSet.iterator();
         boolean positionHadNode = false;
@@ -59,6 +63,9 @@ public class SSCOrder {
                 if (CodeDic.searchDic(node.getCode()).contains(code)) {
                     recorder.add(node.getAbsent());
                     it.remove();
+                    if (node.getAbsent() > CodeDic.max) {
+                        log.info("超过最大遗漏中奖，遗漏次数:" + node.getAbsent() +" ,position:" + PositionEnum.dec(position) + " ,code:" + code + " ,当前期数为:" + seasonId);
+                    }
                     if (StringUtils.isNotEmpty(CodeDic.searchDic(code))) {
                         temp.add(orderNode);
                     }

@@ -6,6 +6,7 @@ import org.mySite.common.bean.Cookie;
 import org.mySite.common.bean.RequestHeader;
 import org.mySite.common.constant.SSCConstants;
 import org.mySite.common.util.HttpRequestUtil;
+import org.mySite.domain.OpenNode;
 import org.mySite.domain.SSCOrder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,35 +31,38 @@ public class ReplayService {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
 
-    public List<String> getResultOfDates(int from, int to, Cookie cookie, RequestHeader header) throws Exception  {
-        List<String> result = new ArrayList<String>();
-        Date fromDate = sdf.parse(from + "");
-        Date toDate = sdf.parse(to + "");
+    public List<OpenNode> getResultOfDates(int smallDateInt, int bigDateInt, Cookie cookie, RequestHeader header) throws Exception  {
+        List<OpenNode> result = new ArrayList<OpenNode>();
+        Date bigDate = sdf.parse(bigDateInt + "");
         Calendar startCalendar = Calendar.getInstance();
-        startCalendar.setTime(fromDate);
-        Calendar toCalendar = Calendar.getInstance();
-        toCalendar.setTime(toDate);
-        while (startCalendar.before(toCalendar) || startCalendar.equals(toCalendar)) {
-            String date = sdf.format(startCalendar.getTime());
-            List<String> dataList = getResultOfDate(date, cookie, header);
+        startCalendar.setTime(bigDate);
+        Calendar bigCalendar = Calendar.getInstance();
+        bigCalendar.setTime(bigDate);
+        while (Integer.parseInt(sdf.format(bigCalendar.getTime())) >= smallDateInt) {
+            String date = sdf.format(bigCalendar.getTime());
+            List<OpenNode> dataList = getResultOfDate(date, cookie, header);
             result.addAll(dataList);
-            startCalendar.add(Calendar.DAY_OF_MONTH, 1);
+            bigCalendar.add(Calendar.DAY_OF_MONTH, -1);
         }
         return result;
     }
 
-    public List<String> getResultOfDate(String date, Cookie cookie, RequestHeader header){
+    public List<OpenNode> getResultOfDate(String date, Cookie cookie, RequestHeader header){
         log.info("request date:" + date);
-        List<String> result = new ArrayList<String>();
+        List<OpenNode> result = new ArrayList<OpenNode>();
         InputStream is = getResultFromFile(date);
         Document document = parseDocument(is);
         if (document == null) return result;
         Element root = document.getDocumentElement();
         NodeList childNodes = root.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
+            OpenNode openNode = new OpenNode();
             Element element = (Element)childNodes.item(i);
             String opencode = element.getAttribute("opencode");
-            result.add(opencode);
+            String expect = element.getAttribute("expect");
+            openNode.setCodes(opencode);
+            openNode.setSeasonId(expect);
+            result.add(openNode);
         }
         return result;
     }
@@ -101,7 +105,7 @@ public class ReplayService {
     }
 
 
-    public void storeHistoryData (int from, int to, Cookie cookie, RequestHeader header) throws Exception{
+    public void storeHistoryData (int from, int to, Cookie cookie, RequestHeader header) throws Exception {
         Date fromDate = sdf.parse(from + "");
         Date toDate = sdf.parse(to + "");
         Calendar startCalendar = Calendar.getInstance();
@@ -112,7 +116,9 @@ public class ReplayService {
             String fileName = sdf.format(startCalendar.getTime());
             log.info("write " + fileName);
             File file = new File(SSCConstants.HISTORY_BASE_PATH + fileName);
-            if (file != null && file.exists()) {
+            Date date = new Date();
+            String today = sdf.format(date);
+            if (file != null && file.exists() && !today.equals(fileName)) {
                 log.info(fileName + "exist!");
                 startCalendar.add(Calendar.DAY_OF_MONTH, 1);
                 continue;
@@ -171,13 +177,13 @@ public class ReplayService {
         return in;
     }
 
-    public void replay(SSCOrder sscOrder, List<String> data) {
+    public void replay(SSCOrder sscOrder, List<OpenNode> data) {
         if (data != null && data.size() > 0) {
             for (int j=data.size()-1; j>=0; j--) {
-                String codeStr = data.get(j);
-                String[] codeArray = codeStr.split(",");
+                OpenNode node = data.get(j);
+                String[] codeArray = node.getCodes().split(",");
                 for (int i=0; i<codeArray.length; i++) {
-                    sscOrder.addOrderNode(i, codeArray[i]);
+                    sscOrder.addOrderNode(i, codeArray[i], node.getSeasonId());
                 }
             }
         }

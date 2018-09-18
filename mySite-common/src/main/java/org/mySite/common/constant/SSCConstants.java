@@ -3,7 +3,7 @@ package org.mySite.common.constant;
 public interface SSCConstants {
     //账户信息
     String user = "liaowenhua22";
-    String jsessionId = "9188818AAA20C323E566ED9A50B203877EB685CA";
+    String jsessionId = "51A2501C9AD73F5F95002E1F832C21D80A544875";
     String swtichOpen = "n579";
     String __cfduid = "dd65c93b7bcda0797acd3997aa217ad501537234507";
 

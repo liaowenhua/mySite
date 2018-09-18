@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mySite.common.bean.ReplayCookie;
 import org.mySite.common.bean.RequestHeader;
+import org.mySite.domain.OpenNode;
 import org.mySite.domain.Recorder;
 import org.mySite.domain.SSCOrder;
 import org.mySite.service.ssc.ReplayService;
@@ -16,7 +17,7 @@ public class ReplayClient extends BaseClient{
         ReplayService replayService = new ReplayService();
         ReplayCookie cookie = buildCookie();
         RequestHeader header = builderHeader();
-        List<String> dataList = replayService.getResultOfDates(20180916, 20180916, null, header);
+        List<OpenNode> dataList = replayService.getResultOfDates(20150101, 20180918, null, header);
         SSCOrder sscOrder = new SSCOrder();
         replayService.replay(sscOrder, dataList);
         Recorder recorder = sscOrder.getRecorder();

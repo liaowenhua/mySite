@@ -7,6 +7,24 @@ public class AbsentedNode {
     private int absent = 0;
     private int position;
     private boolean avaliable = true;
+    private String fromSeasonId;
+    private String endSeasonId;
+
+    public String getFromSeasonId() {
+        return fromSeasonId;
+    }
+
+    public void setFromSeasonId(String fromSeasonId) {
+        this.fromSeasonId = fromSeasonId;
+    }
+
+    public String getEndSeasonId() {
+        return endSeasonId;
+    }
+
+    public void setEndSeasonId(String endSeasonId) {
+        this.endSeasonId = endSeasonId;
+    }
 
     public boolean isAvaliable() {
         return avaliable;

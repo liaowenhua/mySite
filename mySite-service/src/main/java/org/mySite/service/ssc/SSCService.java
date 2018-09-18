@@ -474,7 +474,7 @@ public class SSCService {
                 JSONArray nums = openJson.getJSONArray("nums");
                 log.info("nums:" + nums.toString());
                 for (int i=0; i<nums.size(); i++) {
-                    currentOrders.addOrderNode(i, nums.get(i).toString());
+                    currentOrders.addOrderNode(i, nums.get(i).toString(), sscInfo.getCurrentOpenSeasonId());
                 }
             }
         }
