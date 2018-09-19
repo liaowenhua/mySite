@@ -12,7 +12,7 @@ import java.util.Map;
 public class Recorder {
     private static Logger log = LogManager.getLogger(Recorder.class);
     private Map<Integer, Integer> absentedMap = new HashMap<Integer, Integer>();
-    private static double initMoney = 2000.0;
+    private static double initMoney = 650.0;
     private static List<Double> moneyChangeList = new ArrayList<Double>();
 
     static {

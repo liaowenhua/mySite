@@ -22,7 +22,7 @@ public class AbsentRiskStategyImpl implements IRiskStrategy {
 
     private static Logger log = LogManager.getLogger(AbsentRiskStategyImpl.class);
 
-    private static double unit = 0.2;
+    private static double unit = 2;
     //资金风险比例
     private static double risk = 0.01;
 
