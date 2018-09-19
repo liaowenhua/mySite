@@ -17,12 +17,17 @@ public class ReplayClient extends BaseClient{
         ReplayService replayService = new ReplayService();
         ReplayCookie cookie = buildCookie();
         RequestHeader header = builderHeader();
-        List<OpenNode> dataList = replayService.getResultOfDates(20150101, 20180918, null, header);
+        List<OpenNode> dataList = replayService.getResultOfDates(20140119, 20180919, null, header);
         SSCOrder sscOrder = new SSCOrder();
         replayService.replay(sscOrder, dataList);
         Recorder recorder = sscOrder.getRecorder();
         log.info(recorder.toString());
         log.info("total profile is " + recorder.getProfile());
+        log.info("money change:");
+        for (Double profile : recorder.getMoneyChangeList()) {
+            log.info(profile);
+        }
+
     }
 
 

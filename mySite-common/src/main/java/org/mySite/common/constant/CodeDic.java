@@ -37,7 +37,7 @@ public class CodeDic {
 
     //对应规则
     public static final String code_map_0 = "0145";//0145
-    public static final String code_map_2 = "3675";
+    public static final String code_map_2 = "0578";
     public static final String code_map_5 = "2468";//2468
     public static final String code_map_9 = "0378";
     static {
@@ -93,5 +93,13 @@ public class CodeDic {
             return dic.get(request);
         }
         return "";
+    }
+
+    public static Map<Integer, Double> getProfileMap() {
+        return profileMap;
+    }
+
+    public static void setProfileMap(Map<Integer, Double> profileMap) {
+        CodeDic.profileMap = profileMap;
     }
 }
